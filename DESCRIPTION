@@ -1,0 +1,22 @@
+Package: coseq
+Type: Package
+Title: Co-Expression Analysis of Sequencing Data
+Version: 0.99.7
+Date: 2016-12-20
+Author: Andrea Rau, Cathy Maugis-Rabusseau
+Maintainer: Andrea Rau <andrea.rau@jouy.inra.fr>
+Depends: R (>= 3.4.0), SummarizedExperiment, S4Vectors
+Imports: edgeR, DESeq2, capushe, Rmixmod, e1071, BiocParallel, ggplot2
+        (>= 2.1.0), scales, HTSFilter, corrplot, HTSCluster (>= 2.0.8),
+        gridExtra, grDevices, graphics, stats, methods
+Suggests: Biobase, knitr, rmarkdown, testthat
+Description: Gaussian and Poisson mixture models are implemented to
+        cluster biological entities (e.g., genes) from high-throughput
+        sequencing data. Parameter estimation is performed using the EM
+        algorithm and model selection criteria (to choose the number of
+        clusters) are provided.
+biocViews: GeneExpression, RNASeq, Sequencing, Software
+License: GPL (>=3)
+LazyLoad: yes
+RoxygenNote: 5.0.1
+VignetteBuilder: knitr

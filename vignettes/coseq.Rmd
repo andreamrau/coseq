@@ -1,0 +1,234 @@
+---
+title: "*coseq* package: Quick-start guide"
+author: "Andrea Rau"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+
+vignette: >
+  %\VignetteIndexEntry{coseq}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+*coseq* is a package to perform clustering analysis of sequencing data 
+(e.g., co-expression analysis 
+of RNA-seq data), using transformed profiles rather than the raw counts directly. The package implements mixture models, performs 
+parameter estimation using an expectation-maximization algorithm, and performs model selection using either the Integrated Completed Likelihood (ICL) criterion or the slope heuristics approach. The methods implemented in this package are described in detail in the following two publications:
+
+* Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for RNA-seq co-expression analysis. *Briefings in Bioinformatics* (to appear), doi: http://dx.doi.org/10.1101/065607.
+
+* Rau, A., Maugis-Rabusseau, C., Martin-Magniette, M.-L., Celeux, G. (2015) Co-expression analysis of high-throughput transcriptome sequencing data with Poisson mixture models. *Bioinformatics*, 31(9): 1420-1427. [link](https://www.ncbi.nlm.nih.gov/pubmed/25563332)
+
+<!-- A complete User's Guide for *coseq* may be found by installing the *coseq* package, loading it into an R session, and typing: -->
+<!-- ```{r, eval=FALSE} -->
+<!-- coseqUsersGuide() -->
+<!-- ``` -->
+<!-- at the R prompt to open the User's Guide in a pdf viewer. -->
+
+Below, we provide a quick-start guide using a small subset of RNA-seq data to illustrate
+the functionalities of the *coseq* package. In this document, we focus on the method described in Rau and Maugis-Rabusseau (2016). For more information about the method described in Rau et al. (2015), see the [HTSCluster](https://CRAN.R-project.org/package=HTSCluster) vignette.
+
+## Quick start (tl;dr)
+A standard *coseq* analysis takes the following form, where `counts` represents a matrix or data.frame of gene-level counts arising from an RNA-seq experiment (of dimension *n* x *q* for *n* genes and *q* samples). Results, exported in the form
+of a `coseqResults` S4 object, can easily be examined using standard `summary` and `plot` functions (see below and the User's Guide for examples of plots that may be obtained):
+```{r, eval=FALSE}
+run <- coseq(counts, K=2:6)
+summary(run)
+plot(run)
+```
+The cluster labels obtained from the `coseq` clustering may easily be obtained using the `clusters` functions:
+```{r, eval=FALSE}
+clusters(run)
+```
+
+
+## Co-expression analysis with *coseq*
+
+For the remainder of this vignette, we make use of the RNA-seq data from [Sultan et al. (2008)](https://www.ncbi.nlm.nih.gov/pubmed/18599741) that are included in the [*HTSFilter*](https://bioconductor.org/packages/release/bioc/html/HTSFilter.html) package. These data arise from two human cell lines (Ramos B cell line and HEK293T), with two biological replicates per condition. The original ExpressionSet was downloaded from the [ReCount](http://bowtie-bio.sourceforge.net/recount/) online resource.
+
+We begin by first loading the necessary R packages as well as the data.
+```{r, message=FALSE}
+library(coseq)
+library(HTSFilter)
+library(Biobase)
+library(corrplot)
+library(SummarizedExperiment)
+data(sultan)
+counts <- exprs(sultan)
+conds <- pData(sultan)$cell.line
+```
+
+As described in Rau and Maugis-Rabusseau (2016), the *coseq* package fits a Gaussian mixture model to the normalized expression profiles of RNA-seq data, that is, the proportion of normalized reads observed for gene *i* with respect to the total observed for gene *i* across all samples:
+$$
+p_{ij} = \frac{y_{ij}/s_{j} +1}{\sum_{j'} y_{ij'}/s_{j'} +1},
+$$ 
+where $s_j$ are normalization scaling factors (e.g., after applying  [TMM](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25) normalization to library sizes) and $y_{ij}$ represents the raw count for gene $i$ in sample $j$. Since the coordinates of $\mathbf{p}_i$ are linearly dependent (causing estimation problems for a Gaussian mixture distribution), we  consider either the arcsine or logit transformation of the normalized profiles $p_{ij}$:
+$$g_{\text{arcsin}}(p_{ij}) = \text{arcsin}\left( \sqrt{ p_{ij} } \right) \in [0, \pi/2], \text{ and}$$
+$$g_{\text{logit}}(p_{ij}) \text{log}_2 \left( \frac{p_{ij}}{1-p_{ij}}  \right) \in (-\infty, \infty).$$
+
+Then the distribution of the transformed normalized expression profiles is modeled by a general multidimensional Gaussian mixture 
+
+$$f(.|\theta_K) = \sum_{k=1}^K \pi_k \phi(.|\mu_k,\Sigma_k)$$
+
+where $\theta_K=(\pi_1,\ldots,\pi_{K-1},\mu_1,\ldots,\mu_K,\Sigma_1,\ldots,\Sigma_K)$, $\pi=(\pi_1,\ldots,\pi_K)$ are the mixing proportions and $\phi(.|\mu_k,\Sigma_k)$ is the $q$-dimensional Gaussian density function with mean $\mu_k$ and covariance matrix $\Sigma_k$. To estimate mixture parameters $\theta_K$ by computing the maximum likelihood estimate (MLE), an Expectation-Maximization (EM) algorithm is used via the  [Rmixmod](https://CRAN.R-project.org/package=Rmixmod) package. Finally, let $\hat t_{ik}$ be the conditional probability that observation $i$ arises from the $k$th component of the mixture $f(.|\hat \theta_{\hat K})$. Each observation $i$ is assigned to the component maximizing the conditional probability $\hat t_{ik}$ i.e., using the so-called maximum a posteriori (MAP) rule.
+
+Because the number of clusters $K$ is not known a priori, we fit a collection of models (here $K$ = 2, ..., 25) and use the Integrated Completed Likelihood (ICL) criterion to select the best model in terms of fit, complexity, and cluster separation. If desired, we can set a filtering cutoff on the mean normalized counts via the `meanFilterCutoff` argument to remove very weakly expressed genes from the co-expression analysis; in the interest of faster computation for this vignette, in this example we filter all genes with mean normalized expression less than 200.
+
+The collection of co-expression models for the arcsine-transformed and logit-transformed profiles may be obtained as follows:
+
+```{r}
+runArcsin <- coseq(counts, K=2:25, transformation="arcsin", meanFilterCutoff=200)
+runLogit <- coseq(counts, K=2:25, transformation="logit", meanFilterCutoff=200)
+```
+
+Note that if desired, parallel execution using [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html) can be specified via the `parallel` argument:
+
+```{r,eval=FALSE}
+runArcsin <- coseq(counts, K=2:25, transformation="arcsin", meanFilterCutoff=200,
+                   parallel=TRUE)
+```
+
+In both cases, the resulting output of a call to `coseq` is an S4 object of class `coseqResults`.
+
+```{r}
+class(runArcsin)
+runArcsin
+```
+
+To choose the most appropriate transformation to use (arcsine versus logit), we may use the corrected ICL, where the minimum value corresponds to the selected model.
+
+```{r, figure=TRUE, fig.width=6, fig.height=4}
+compareICL(list(runArcsin, runLogit))
+```
+
+This indicates that the preferred transformation is the arcsine, and the selected model has $K = $ `{r} ncol(runArcsin)` clusters. We can additionally explore how similar the models with $K = $ `{r ncol(runArcsin)-1}` to `{r ncol(runArcsin)+1}` are using the adjusted Rand index (ARI) via the `compareARI` function. Values close to 1 indicate perfect agreement, while values close to 0 indicate near random partitions.
+
+```{r, figure=TRUE, fig.width=7, fig.height=7}
+compareARI(runArcsin, K=5:15)
+```
+
+Note that because the results of `coseq` depend on the initialization point, results from one run to another may vary; as such, in practice, it is typically a good idea to re-estimate the same collection of models a few times (e.g., 5) to avoid problems linked to initialization.
+
+## Exploring results
+
+Results from a *coseq* analysis can be explored and summarized in a variety of ways. First, a call to the `summary` function provides the number of clusters selected for the ICL model selection approach, number of genes assigned to each cluster, and if desired the per-gene cluster means.
+
+```{r}
+summary(runArcsin)
+```
+
+Next, a variety of plots may be explored using the `plot` function:
+
+* `logLike` (log-likelihood plotted versus number of clusters),
+
+* `ICL` (ICL plotted versus number of clusters), 
+
+*  `profiles`(line plots of profiles in each cluster), 
+
+* `boxplots` (boxplots of profiles in each cluster), 
+
+* `probapost_boxplots` (boxplots of maximum conditional probabilities per cluster), 
+
+* `probapost_barplots` (number of observations with a maximum conditional probability greater than a given threshold per cluster), 
+
+* `probapost_histogram` (histogram of maximum conditional probabilities over all clusters).
+
+By default, all of these plots are produced simultaneously unless specific graphics are requested via the `graphs` argument. In addition, a variety of options are available to specify the number of graphs per row/column in a grid layout, whether profiles should be averaged over conditions, whether condition labels should be used, whether clusters should be ordered according to their similarity, etc. Note that the histogram of maximum conditional probabilities of cluster membership for all genes (`probapost_histogram`), and boxplots and barplots of maximum conditional probabilities of cluster membership for the genes assigned to each cluster (`probapost_boxplots`, `probapost_barplots`) help to evaluate the degree of certitude accorded by the model in assigning genes to clusters, as well as whether some clusters are attribued a greater degree of uncertainty than others.
+
+```{r, fig.width=6, fig.height=4}
+## To obtain all plots
+## plot(runArcsin)
+plot(runArcsin, graphs="boxplots")
+plot(runArcsin, graphs="boxplots", conds=conds)
+plot(runArcsin, graphs="boxplots", conds=conds, average_over_conds=TRUE)
+plot(runArcsin, graphs="profiles")
+
+plot(runArcsin, graphs="probapost_boxplots")
+plot(runArcsin, graphs="probapost_histogram")
+```
+
+If desired the per-cluster correlation matrices estimated in the Gaussian mixture model may be obtained by calling `NormMixParam`. These matrices may easily be visualized using the `corrplot` package.
+
+```{r, figure=TRUE, fig.width=4, fig.height=4}
+rho <- NormMixParam(runArcsin)$rho
+## Covariance matrix for cluster 1
+rho1 <- rho[,,1]
+colnames(rho1) <- rownames(rho1) <- paste0(colnames(rho1), "\n", conds)
+corrplot(rho1)
+```
+
+Finally, cluster labels (as well as a variety of other information) are easily accessible via a set of accessor functions.
+
+```{r}
+labels <- clusters(runArcsin)
+table(labels)
+
+metadata(runArcsin)
+likelihood(runArcsin)
+nbCluster(runArcsin)
+ICL(runArcsin)
+model(runArcsin)
+transformationType(runArcsin)
+```
+
+The data used to fit the mixture model (transformed normalized profiles) as well as the normalized profiles themselves are stored as `DataFrame` objects that may be accessed with the corresponding functions:
+
+```{r}
+## arcsine-transformed normalized profiles
+tcounts(runArcsin)
+
+## normalized profiles
+profiles(runArcsin)
+```
+
+Finally, if the results for a model in the collection other than that chosen by ICL are desired, they may be accessed in the form of a list using the `coseqFullResults` function.
+
+```{r}
+fullres <- coseqFullResults(runArcsin)
+class(fullres)
+length(fullres)
+names(fullres)
+```
+
+
+## Running coseq on a *DESeq2* or *edgeR* results object
+
+In many cases, it is of interest to run a co-expression analysis on the subset of genes identified as differentially expressed in a prior analysis. To facilitate this, `coseq` may be directly inserted into a *DESeq2* analysis pipeline as follows:
+
+```{r, message=FALSE}
+library(DESeq2)
+dds <- DESeqDataSetFromMatrix(counts, DataFrame(group=factor(conds)), ~group)
+dds <- DESeq(dds, test="LRT", reduced = ~1)
+res <- results(dds)
+
+## By default, alpha = 0.10
+run <- coseq(dds, K=2:5)
+
+## The following two lines provide identical results
+run <- coseq(dds, K=2:5, alpha=0.05)
+run <- coseq(dds, K=2:5, subset=results(dds, alpha=0.05))
+```
+
+A co-expression analysis following the *edgeR* analysis pipeline may be done in a similar way, depending on whether the quasi-likelihood or likelihood ratio test is used:
+
+```{r, message=FALSE}
+library(edgeR)
+y <- DGEList(counts=counts, group=factor(conds))
+y <- calcNormFactors(y)
+design <- model.matrix(~conds)
+y <- estimateDisp(y, design)
+
+## edgeR: QLF test
+fit <- glmQLFit(y, design)
+qlf <- glmQLFTest(fit, coef=2)
+
+## edgeR: LRT test
+fit <- glmFit(y,design)
+lrt <- glmLRT(fit,coef=2)
+
+run <- coseq(counts, K=2:5, subset=lrt, alpha=0.1)
+run <- coseq(counts, K=2:5, subset=qlf, alpha=0.1)
+```
+

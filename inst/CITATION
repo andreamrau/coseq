@@ -1,0 +1,11 @@
+citHeader("To cite the R package 'coseq' in publications use:")  
+
+citEntry(entry   = "article",
+         title   = "Transformation and model choice for co-expression analysis of RNA-seq data",
+		 journal = "Briefings in Bioinformatics",
+         number  = "doi: http://dx.doi.org/10.1101/065607 ",
+         year    = "2016",
+         author  = personList(
+           person(given="Andrea", family="Rau"),
+		   person(given="Cathy", family="Maugis-Rabusseau")),
+         textVersion = "Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for co-expression analayis of RNA-seq data. Briefings in Bioinformatics (to appear), doi: http://dx.doi.org/10.1101/065607.")

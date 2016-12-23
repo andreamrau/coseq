@@ -1,0 +1,19 @@
+            
+                RELEASE HISTORY OF coseq PACKAGE
+             ========================================
+
+		coseq VERSION 0.99.5
+
+-- Add unit tests, remove static vignette.
+					
+		coseq VERSION 0.99.1
+
+-- Fairly significant changes to address Bioconductor reviewer comments. In
+particular, the package now makes use of S4 classes and methods: a new S4 class,
+coseqResults, has been created to extend the RangedSummarizedExperiment S4 class
+from the SummarizedExperiment package.
+
+		coseq VERSION 0.1.x - 0.99.0
+
+-- Initial development version of coseq.
+		
