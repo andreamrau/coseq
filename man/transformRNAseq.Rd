@@ -8,7 +8,7 @@ transformRNAseq(y, normFactors = "TMM", transformation = "arcsin",
   geneLength = NA, meanFilterCutoff = NULL, verbose = TRUE)
 }
 \arguments{
-\item{y}{(\emph{n} x \emph{q}) \code{matrix} or \code{data.frame} of observed counts 
+\item{y}{(\emph{n} x \emph{q}) \code{matrix} or \code{data.frame} of observed counts
 for \emph{n} observations and \emph{q} variables}
 
 \item{normFactors}{The type of estimator to be used to normalize for differences in
@@ -18,10 +18,11 @@ the TMM normalization method (Robinson and Oshlack, 2010). Can also be a
 vector (of length \emph{q}) containing pre-estimated library size estimates
 for each sample.}
 
-\item{transformation}{Transformation type to be used: \dQuote{\code{arcsin}}, 
-\dQuote{\code{logit}}, \dQuote{\code{logMedianRef}}, \dQuote{\code{profile}}, 
+\item{transformation}{Transformation type to be used: \dQuote{\code{arcsin}},
+\dQuote{\code{logit}}, \dQuote{\code{logMedianRef}}, \dQuote{\code{profile}},
 \dQuote{\code{voom}}, \dQuote{\code{logRPKM}} (if \code{geneLength} is provided by user),
-\dQuote{\code{none}}}
+\dQuote{\code{logclr}}, \dQuote{\code{clr}}, \dQuote{\code{alr}}, \dQuote{\code{ilr}},
+\dQuote{\code{none}},}
 
 \item{geneLength}{Vector of length equal to the number of rows in \dQuote{\code{y}} providing
 the gene length (bp) for RPKM calculation}

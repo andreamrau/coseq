@@ -8,7 +8,7 @@ NormMixParam(coseqResults, y_profiles = NULL, K = NULL, digits = 3,
   plot = FALSE, ...)
 }
 \arguments{
-\item{coseqResults}{Object of class \code{coseqResults} or \code{RangedSummarizedExperiment} 
+\item{coseqResults}{Object of class \code{coseqResults} or \code{RangedSummarizedExperiment}
 (as output from the \code{NormMixClus} or \code{NormMixClusK} functions)}
 
 \item{y_profiles}{y (\emph{n} x \emph{q}) matrix of observed profiles for \emph{n}
@@ -48,7 +48,7 @@ of the form pK_Lk_Ck
 set.seed(12345)
 countmat <- matrix(runif(300*4, min=0, max=500), nrow=300, ncol=4)
 countmat <- countmat[which(rowSums(countmat) > 0),]
-profiles <- transformRNAseq(countmat, norm="none", 
+profiles <- transformRNAseq(countmat, norm="none",
                             transformation="arcsin")$tcounts
 
 conds <- rep(c("A","B","C","D"), each=2)

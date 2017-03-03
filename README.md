@@ -1,10 +1,10 @@
 # coseq: Co-Expression Analysis of Sequencing Data
 
-Authors: Andrea Rau and Cathy Maugis-Rabusseau
+Authors: Andrea Rau, Cathy Maugis-Rabusseau, and Antoine Godichon-Baggioni
 
-Gaussian and Poisson mixture models are implemented to cluster gene expression profiles from high-throughput sequencing data. 
-Parameter estimation is performed using the EM algorithm and model selection criteria (to choose the number of clusters and
-data transformation) are provided. 
+Co-expression analysis for expression profiles arising from high-throughput sequencing data. Feature (e.g., gene) profiles 
+are clustered using adapted transformations and mixture models or a K-means algorithm, and model selection criteria
+(to choose an appropriate number of clusters) are provided.
 
 A typical call to coseq to fit a Gaussian mixture model on arcsin- or logit-transformed normalized
 RNA-seq profiles takes the following form:

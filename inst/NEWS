@@ -2,6 +2,10 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
+		coseq VERSION 0.99.8
+
+-- Add in K-means algorithm functionality.
+
 		coseq VERSION 0.99.5
 
 -- Add unit tests, remove static vignette.

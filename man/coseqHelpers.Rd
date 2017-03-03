@@ -109,16 +109,16 @@ Djumpextract(object, ...)
 \S4method{Djumpextract}{Capushe}(object)
 }
 \arguments{
-\item{object}{a \code{coseqResults}, \code{RangedSummarizedExperiment}, or 
+\item{object}{a \code{coseqResults}, \code{RangedSummarizedExperiment}, or
 \code{MixmodCluster} object.}
 
 \item{...}{Additional optional parameters}
 
-\item{K}{numeric indicating the model to be used (if NULL of missing, the model chosen 
+\item{K}{numeric indicating the model to be used (if NULL of missing, the model chosen
 by ICL is used by default)}
 }
 \value{
-Output varies depending on the method. \code{clusters} returns a vector of cluster 
+Output varies depending on the method. \code{clusters} returns a vector of cluster
 labels for each gene for the desired model.
 }
 \description{
@@ -157,6 +157,11 @@ ICL(run_arcsin)
 ## Examine transformed counts and profiles used for graphing
 tcounts(run_arcsin)
 profiles(run_arcsin)
+
+## Run the K-means algorithm for logclr profiles for K = 2,..., 20
+run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
+                    model="kmeans")
+run_kmeans
 }
 \author{
 Andrea Rau

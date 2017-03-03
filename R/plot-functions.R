@@ -85,9 +85,12 @@ setMethod("plot", signature=signature(x="coseqResults"),
             object <- x
             if(is.null(y_profiles)) y_profiles <- profiles(object)
             if("logLike" %in% graphs | "ICL" %in% graphs) {
-              coseqGlobalPlots(object, K=K, threshold=threshold, conds=conds,
+              if(model(object) != "kmeans")
+                coseqGlobalPlots(object, K=K, threshold=threshold, conds=conds,
                                average_over_conds=average_over_conds, graphs=graphs,
                                order=order, profiles_order=profiles_order, n_row=n_row, n_col=n_col, ...)
+              if(model(object) == "kmeans")
+                 print("Log-likelihood and ICL plots are not available for coseqResults objects using K-means.")
             }
 
             ## Model-specific plots

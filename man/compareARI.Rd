@@ -22,8 +22,8 @@ compareARI(object, ...)
   BPPARAM = bpparam(), plot = TRUE, ...)
 }
 \arguments{
-\item{object}{Object of class \code{coseqResults} or \code{RangedSummarizedExperiment}, 
-or alternatively a \emph{n} x \emph{M} \code{data.frame} or \code{matrix} 
+\item{object}{Object of class \code{coseqResults} or \code{RangedSummarizedExperiment},
+or alternatively a \emph{n} x \emph{M} \code{data.frame} or \code{matrix}
 containing the clustering partitions for \emph{M} different models}
 
 \item{...}{Additional optional parameters for corrplot}
@@ -32,21 +32,21 @@ containing the clustering partitions for \emph{M} different models}
 object \code{x}. Otherwise, \code{K} provides a vector of cluster numbers identifying
 a subset of models in \code{x}.}
 
-\item{parallel}{If \code{FALSE}, no parallelization. If \code{TRUE}, parallel 
-execution using BiocParallel (see next argument \code{BPPARAM}). 
-Note that parallelization is unlikely to be helpful unless the number of 
-observations \emph{n} in the clustering partitions or the number of 
+\item{parallel}{If \code{FALSE}, no parallelization. If \code{TRUE}, parallel
+execution using BiocParallel (see next argument \code{BPPARAM}).
+Note that parallelization is unlikely to be helpful unless the number of
+observations \emph{n} in the clustering partitions or the number of
 models \emph{M} are very large.}
 
-\item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} 
-when \code{parallel=TRUE}. If not specified, the parameters last registered 
+\item{BPPARAM}{Optional parameter object passed internally to \code{bplapply}
+when \code{parallel=TRUE}. If not specified, the parameters last registered
 with \code{register} will be used.}
 
-\item{plot}{If \code{TRUE}, provide a heatmap using corrplot to visualize 
+\item{plot}{If \code{TRUE}, provide a heatmap using corrplot to visualize
 the calculated pairwise ARI values.}
 }
 \value{
-Matrix of adjusted rand index values calculated between each pair 
+Matrix of adjusted rand index values calculated between each pair
 of models.
 }
 \description{
@@ -83,6 +83,11 @@ ICL(run_arcsin)
 ## Examine transformed counts and profiles used for graphing
 tcounts(run_arcsin)
 profiles(run_arcsin)
+
+## Run the K-means algorithm for logclr profiles for K = 2,..., 20
+run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
+                    model="kmeans")
+run_kmeans
 }
 \author{
 Andrea Rau

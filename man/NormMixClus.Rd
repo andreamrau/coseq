@@ -17,28 +17,28 @@ observations and \emph{q} variables}
 genes that should be used for the co-expression analysis (i.e., row indices
 of the data matrix \code{y}.}
 
-\item{parallel}{If \code{FALSE}, no parallelization. If \code{TRUE}, parallel 
-execution using BiocParallel (see next argument \code{BPPARAM}). A note on running 
-in parallel using BiocParallel: it may be advantageous to remove large, unneeded objects 
-from the current R environment before calling the function, as it is possible that R's 
+\item{parallel}{If \code{FALSE}, no parallelization. If \code{TRUE}, parallel
+execution using BiocParallel (see next argument \code{BPPARAM}). A note on running
+in parallel using BiocParallel: it may be advantageous to remove large, unneeded objects
+from the current R environment before calling the function, as it is possible that R's
 internal garbage collection will copy these files while running on worker nodes.}
 
-\item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} when 
-\code{parallel=TRUE}. If not specified, the parameters last registered with \code{register} 
+\item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} when
+\code{parallel=TRUE}. If not specified, the parameters last registered with \code{register}
 will be used.}
 
 \item{...}{Additional optional parameters to be passed to \code{\link{NormMixClusK}}.}
 }
 \value{
-An S4 object of class \code{coseqResults}, with conditional 
-probabilities of cluster membership for each gene in each model stored as a list of assay 
+An S4 object of class \code{coseqResults}, with conditional
+probabilities of cluster membership for each gene in each model stored as a list of assay
 data, and corresponding {log likelihood, ICL value, number of
 clusters, and form of Gaussian model} for each model stored as metadata.
 }
 \description{
-Perform co-expression and co-abudance analysis of high-throughput 
-sequencing data, with or without data transformation, using a Normal 
-mixture models. The output of \code{NormMixClus} is an S4 object of 
+Perform co-expression and co-abudance analysis of high-throughput
+sequencing data, with or without data transformation, using a Normal
+mixture models. The output of \code{NormMixClus} is an S4 object of
 class \code{RangedSummarizedExperiment}.
 }
 \examples{
@@ -46,7 +46,7 @@ class \code{RangedSummarizedExperiment}.
 set.seed(12345)
 countmat <- matrix(runif(300*4, min=0, max=500), nrow=300, ncol=4)
 countmat <- countmat[which(rowSums(countmat) > 0),]
-profiles <- transformRNAseq(countmat, norm="none", 
+profiles <- transformRNAseq(countmat, norm="none",
                             transformation="arcsin")$tcounts
 
 conds <- rep(c("A","B","C","D"), each=2)

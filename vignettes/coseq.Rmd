@@ -14,18 +14,13 @@ vignette: >
 
 *coseq* is a package to perform clustering analysis of sequencing data 
 (e.g., co-expression analysis 
-of RNA-seq data), using transformed profiles rather than the raw counts directly. The package implements mixture models, performs 
+of RNA-seq data), using transformed profiles rather than the raw counts directly. The package implements mixture models and the K-means algorithm, performs 
 parameter estimation using an expectation-maximization algorithm, and performs model selection using either the Integrated Completed Likelihood (ICL) criterion or the slope heuristics approach. The methods implemented in this package are described in detail in the following two publications:
 
 * Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for RNA-seq co-expression analysis. *Briefings in Bioinformatics* (to appear), doi: http://dx.doi.org/10.1101/065607.
 
 * Rau, A., Maugis-Rabusseau, C., Martin-Magniette, M.-L., Celeux, G. (2015) Co-expression analysis of high-throughput transcriptome sequencing data with Poisson mixture models. *Bioinformatics*, 31(9): 1420-1427. [link](https://www.ncbi.nlm.nih.gov/pubmed/25563332)
 
-<!-- A complete User's Guide for *coseq* may be found by installing the *coseq* package, loading it into an R session, and typing: -->
-<!-- ```{r, eval=FALSE} -->
-<!-- coseqUsersGuide() -->
-<!-- ``` -->
-<!-- at the R prompt to open the User's Guide in a pdf viewer. -->
 
 Below, we provide a quick-start guide using a small subset of RNA-seq data to illustrate
 the functionalities of the *coseq* package. In this document, we focus on the method described in Rau and Maugis-Rabusseau (2016). For more information about the method described in Rau et al. (2015), see the [HTSCluster](https://CRAN.R-project.org/package=HTSCluster) vignette.

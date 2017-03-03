@@ -7,14 +7,14 @@
 clusterEntropy(probaPost)
 }
 \arguments{
-\item{probaPost}{Matrix containing the conditional probabilities of belonging 
+\item{probaPost}{Matrix containing the conditional probabilities of belonging
 to each cluster for all observations}
 }
 \value{
 Entropy per cluster
 }
 \description{
-Provides the calculation of per-cluster entropy, equivalent to 
+Provides the calculation of per-cluster entropy, equivalent to
 \deqn{Entropy(k) = \sum_{i \in C_k} \log (\tau_{ik})}
 where \eqn{\tau_{ik}} is the conditional probability of gene \emph{i} belonging
 to cluster \emph{k} and \eqn{C_k} corresponds to the set of indices of genes

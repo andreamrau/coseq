@@ -41,16 +41,16 @@ Small-EM strategry, with a default value of 20}
 \code{probaPost} output}
 }
 \value{
-An S4 object of class \code{RangedSummarizedExperiment}, with conditional 
-probabilities of cluster membership for each gene stored as assay data, and 
+An S4 object of class \code{RangedSummarizedExperiment}, with conditional
+probabilities of cluster membership for each gene stored as assay data, and
 {log likelihood, ICL value, number of
 clusters, and form of Gaussian model} stored as metadata.
 }
 \description{
-Perform co-expression and co-abudance analysis of high-throughput 
-sequencing data, with or without data transformation, using a Normal 
-mixture models for single number of clusters \emph{K}. 
-The output of \code{NormMixClusK} is an S4 object of 
+Perform co-expression and co-abudance analysis of high-throughput
+sequencing data, with or without data transformation, using a Normal
+mixture models for single number of clusters \emph{K}.
+The output of \code{NormMixClusK} is an S4 object of
 class \code{RangedSummarizedExperiment}.
 }
 \examples{
@@ -58,7 +58,7 @@ class \code{RangedSummarizedExperiment}.
 set.seed(12345)
 countmat <- matrix(runif(300*4, min=0, max=500), nrow=300, ncol=4)
 countmat <- countmat[which(rowSums(countmat) > 0),]
-profiles <- transformRNAseq(countmat, norm="none", 
+profiles <- transformRNAseq(countmat, norm="none",
                             transformation="arcsin")$tcounts
 
 conds <- rep(c("A","B","C","D"), each=2)

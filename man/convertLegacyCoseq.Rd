@@ -13,7 +13,7 @@ coseq (< 0.99.1)}
 \item{digits}{integer indicating the number of decimal places (round) to retain in results.}
 }
 \value{
-Converted object of S4 class \code{coseqResults} compatible with 
+Converted object of S4 class \code{coseqResults} compatible with
 recent versions of coseq (>= 0.99.1)
 }
 \description{

@@ -1,13 +1,12 @@
 #' Co-expression and co-abundance analysis of high-throughput sequencing data
 #'
-#' Mixture models are implemented to cluster genes from high-throughput
-#' transcriptome sequencing (RNA-seq) data. Parameter estimation is performed
-#' using the EM algorithm, and model selection is performed using
-#' either the slope heuristics or the integrated completed likelihood (ICL)
-#' criterion.
+#' Co-expression analysis for expression profiles arising from high-throughput sequencing
+#' data. Feature (e.g., gene) profiles are clustered using adapted transformations and
+#' mixture models or a K-means algorithm, and model selection criteria
+#' (to choose an appropriate number of clusters) are provided.
 #'
 #' \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-#' \tab 0.99.7\cr Date: \tab 2016-12-20\cr License: \tab GPL (>=3)\cr LazyLoad:
+#' \tab 0.99.8\cr Date: \tab 2017-03-02\cr License: \tab GPL (>=3)\cr LazyLoad:
 #' \tab yes\cr }
 #'
 #' @name coseq-package

@@ -3,7 +3,8 @@
 #' A function to summarize the clustering results obtained from a Poisson or
 #' Gaussian mixture model estimated using \code{coseq}. In particular,
 #' the function provides the number of clusters selected for the ICL
-#' model selection approach, number of genes assigned to each cluster, and
+#' model selection approach (or alternatively, for the capushe non-asymptotic approach
+#' if K-means clustering is used), number of genes assigned to each cluster, and
 #' if desired the per-gene cluster means.
 #'
 #' Provides the following summary of results:
@@ -50,17 +51,22 @@ setMethod("summary", signature(object="coseqResults"), function(object, y_profil
   cat("*************************************************\n")
   if(model(x) == "Poisson") cat("Model: ", model(x), "\n", sep = "")
   if(model(x) == "Normal") cat("Model: ", metadata(x)$GaussianModel, "\n", sep="")
+  if(model(x) == "kmeans") cat("K-means algorithm\n", sep="")
   cat("Transformation: ", transformationType(x), "\n", sep = "")
 
   cat("*************************************************\n")
   clustNum <-  paste(metadata(x)$nbCluster, collapse=",")
   clustErr <- paste(metadata(x)$nbClusterError, collapse=",")
-
   clustErr <- ifelse(clustErr == "", "---", clustErr)
   cat("Clusters fit: ", clustNum, "\n", sep = "")
   cat("Clusters with errors: ", clustErr, "\n", sep= "")
-  cat("Selected number of clusters via ICL: ", ncol(assay(x)), "\n", sep = "")
-  cat("ICL of selected model: ", min(ICL(x)), "\n", sep = "")
+  if(!is.null(ICL(x))) {
+    cat("Selected number of clusters via ICL: ", ncol(assay(x)), "\n", sep = "")
+    cat("ICL of selected model: ", min(ICL(x)), "\n", sep = "")
+  }
+  if(is.null(ICL(x))) {
+    cat("Selected number of clusters via capushe: ", ncol(assay(x)), "\n", sep = "")
+  }
   cat("*************************************************\n")
 
   probaPost <- assay(x)
@@ -68,44 +74,46 @@ setMethod("summary", signature(object="coseqResults"), function(object, y_profil
   map <- apply(probaPost, 1, max)
   length(which(map > 0.9))/length(map)
   g <- ncol(probaPost)
-
   cat("Number of clusters = ", ncol(probaPost), "\n", sep = "")
-  cat("ICL = ", min(ICL(x)), "\n", sep = "")
+  if(model(x) != "kmeans") {
+    cat("ICL = ", min(ICL(x)), "\n", sep = "")
+  }
   cat("*************************************************\n")
   tab <- table(labels)
   names(tab) <- paste("Cluster", names(tab))
   cat("Cluster sizes:\n")
   print(tab)
   cat("\n")
-  cat("Number of observations with MAP > 0.90 (% of total):\n")
-  cat(length(which(map > 0.9)), " (", round(length(which(map > 0.9))/length(map)*100,2),
-      "%)\n\n", sep = "")
-  cat("Number of observations with MAP > 0.90 per cluster (% of total per cluster):\n")
+  if(model(x) != "kmeans") {
+    cat("Number of observations with MAP > 0.90 (% of total):\n")
+    cat(length(which(map > 0.9)), " (", round(length(which(map > 0.9))/length(map)*100,2),
+        "%)\n\n", sep = "")
+    cat("Number of observations with MAP > 0.90 per cluster (% of total per cluster):\n")
 
-  tab2 <- matrix(NA, nrow = 2, ncol = g)
-  colnames(tab2) <- paste("Cluster", 1:g)
-  rownames(tab2) <- rep("", 2)
-  for(i in seq_len(g)) {
-    if(sum(labels == i) > 1) {
-      map.clust <- apply(matrix(probaPost[labels == i,], ncol=g), 1, max)
-      tab2[1,i] <- length(which(map.clust > 0.9))
-      tab2[2,i] <- paste("(", round(100*length(which(map.clust > 0.9))/length(map.clust),2),
-                         "%)", sep = "")
+    tab2 <- matrix(NA, nrow = 2, ncol = g)
+    colnames(tab2) <- paste("Cluster", 1:g)
+    rownames(tab2) <- rep("", 2)
+    for(i in seq_len(g)) {
+      if(sum(labels == i) > 1) {
+        map.clust <- apply(matrix(probaPost[labels == i,], ncol=g), 1, max)
+        tab2[1,i] <- length(which(map.clust > 0.9))
+        tab2[2,i] <- paste("(", round(100*length(which(map.clust > 0.9))/length(map.clust),2),
+                           "%)", sep = "")
+      }
+      if(sum(labels == i) == 1) {
+        map.clust <- max(probaPost[labels == i,])
+        tab2[1,i] <- length(which(map.clust > 0.9))
+        tab2[2,i] <- paste("(", round(100*length(which(map.clust > 0.9))/length(map.clust),2),
+                           "%)", sep = "")
+      }
+      if(sum(labels == i) == 0) {
+        tab2[1,i] <- "---"
+        tab2[2,i] <- "---"
+      }
     }
-    if(sum(labels == i) == 1) {
-      map.clust <- max(probaPost[labels == i,])
-      tab2[1,i] <- length(which(map.clust > 0.9))
-      tab2[2,i] <- paste("(", round(100*length(which(map.clust > 0.9))/length(map.clust),2),
-                         "%)", sep = "")
-    }
-    if(sum(labels == i) == 0) {
-      tab2[1,i] <- "---"
-      tab2[2,i] <- "---"
-    }
+    print(tab2, quote = FALSE)
+    cat("\n")
   }
-  print(tab2, quote = FALSE)
-  cat("\n")
-
 
   ## Print out parameter estimates if Gaussian model and y_profiles provided
   if(!is.null(metadata(x)$GaussianModel) & !missing(y_profiles)) {

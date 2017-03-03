@@ -15,10 +15,12 @@
 #' the TMM normalization method (Robinson and Oshlack, 2010). Can also be a
 #' vector (of length \emph{q}) containing pre-estimated library size estimates
 #' for each sample.
-#' @param model Type of mixture model to use (\dQuote{\code{Poisson}} or \dQuote{\code{Normal}})
+#' @param model Type of mixture model to use (\dQuote{\code{Poisson}} or \dQuote{\code{Normal}}), or alternatively
+#' \dQuote{\code{kmeans}} for a K-means algorithm
 #' @param transformation Transformation type to be used: \dQuote{\code{voom}}, \dQuote{\code{logRPKM}}
 #' (if \code{geneLength} is provided by user), \dQuote{\code{arcsin}}, \dQuote{\code{logit}},
-#' \dQuote{\code{logMedianRef}}, \dQuote{\code{profile}}, \dQuote{\code{none}}
+#' \dQuote{\code{logMedianRef}}, \dQuote{\code{profile}}, \dQuote{\code{logclr}}, \dQuote{\code{clr}},
+#' \dQuote{\code{alr}}, \dQuote{\code{ilr}}, or \dQuote{\code{none}}
 #' @param subset Optional vector providing the indices of a subset of
 #' genes that should be used for the co-expression analysis (i.e., row indices
 #' of the data matrix \code{y}. For the generic function \code{coseq}, the results of a previously
@@ -56,7 +58,7 @@
 #' @export
 #' @importFrom HTSCluster PoisMixClus
 #' @importFrom HTSCluster PoisMixClusWrapper
-#' @importFrom stats na.omit
+#' @importFrom stats na.omit kmeans
 #' @importFrom capushe capushe
 #' @importClassesFrom S4Vectors DataFrame
 #' @importMethodsFrom S4Vectors metadata
@@ -86,10 +88,11 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
                    verbose=TRUE, digits=3,
                    Kmin.init="small-em", split.init=FALSE, fixed.lambda=NA,
                    equal.proportions=FALSE, EM.verbose=FALSE, interpretation="sum",
-                   geneLength=NA)
+                   geneLength=NA, iter.max=10, nstart=1, algorithm="MacQueen", trace=FALSE)
+
   if(model == "Poisson") {
     arg.user$init.runs <- 1
-    arg.user$inititer <- 10
+    arg.user$init.iter <- 10
     arg.user$cutoff <- 1e-05
     if(is.null(subset)) arg.user$subset.index <- NA
   }
@@ -315,6 +318,61 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
     y_profiles <- y_profiles[subset.index,]
   }
 
+  ########################
+  ## K-means
+  ########################
+
+  if(length(model) & model == "kmeans") {
+
+    ## TODO: add message about transformations here
+    tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation=transformation,
+                               geneLength=arg.user$geneLength,
+                               meanFilterCutoff=meanFilterCutoff, verbose=FALSE)
+    n <- nrow(tcounts$tcounts)
+    d <- ncol(tcounts$tcounts)
+    km_cluster <- vector("list", length(K)) ## Initialisation pour les vecteurs de classification
+    tot_withinss <- c() ## Initialisation pour l'inertie intra
+    names(km_cluster) <- paste0("K=", K)
+
+    ## TODO: add possibility to parallelize
+    for(k in K) {
+      km <- kmeans(tcounts$tcounts, centers=k, iter.max=arg.user$iter.max, nstart=arg.user$nstart,
+                algorithm=arg.user$algorithm, trace=arg.user$trace)
+      km_cluster[[paste0("K=",k)]] <- km$cluster
+      tot_withinss <- c(tot_withinss, km$tot.withinss)
+    }
+    names(tot_withinss) <- paste0("K=", K)
+    ## TODO: add error if less than 10 clusters
+    cap <- suppressWarnings(capushe(matrix(c(K, sqrt(n*d*K), sqrt(n*d*K), tot_withinss), ncol=4)))
+    K_select <- paste0("K=",DDSEextract(cap)[1]) # nombre de classes séléctionné par capushe
+    cluster_select <- km_cluster[[K_select]]
+    pp_select <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=as.numeric(DDSEextract(cap)[1]))
+    pp_select[cbind(seq_len(length(cluster_select)), cluster_select)] <- 1
+    colnames(pp_select) <- paste0("Cluster_", seq_len(ncol(pp_select)))
+    rownames(pp_select) <- rownames(tcounts$tcounts)
+    nbClust.all <- K
+    names(nbClust.all) <- names(km_cluster)
+
+    select.results <- SummarizedExperiment(pp_select,
+                                           metadata=list(nbCluster=nbClust.all,
+                                                         DDSE=paste0("K=", DDSEextract(cap)[1]),
+                                                         Djump=paste0("K=", Djumpextract(cap)[1]),
+                                                         capushe=cap,
+                                                         tot_withinss=tot_withinss))
+
+    all.results <- vector("list", length(K))
+    names(all.results) <- paste0("K=", K)
+    for(k in K) {
+      all.results[[paste0("K=",k)]] <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=k)
+      all.results[[paste0("K=",k)]][cbind(seq_len(length(km_cluster[[paste0("K=", k)]])),
+                                          km_cluster[[paste0("K=", k)]])] <- 1
+      colnames(all.results[[paste0("K=",k)]]) <- paste0("Cluster_", seq_len(ncol(all.results[[paste0("K=",k)]])))
+      rownames(all.results[[paste0("K=",k)]]) <- rownames(tcounts$tcounts)
+    }
+
+    run <- coseqResults(as(select.results, "RangedSummarizedExperiment"), allResults=all.results)
+  }
+
   ####################################
   ## RETURN RESULTS
   ####################################
@@ -460,6 +518,47 @@ clusterEntropy <- function(probaPost) {
 }
 
 
+#' Calculation of within-cluster inertia
+#'
+#' Provides the calculation of within-cluster inertia, equivalent to
+#' \deqn{Inertia(k) = \sum_{i \in C_k} (y_{ik} - \mu_k)^2}
+#' where \eqn{\mu_k} is the mean of cluster \emph{k} and \eqn{C_k} corresponds to the set of indices of genes
+#' attributed to cluster \emph{k}.
+#'
+#' @param profiles Matrix, data.frame, or DataFrame containing the (transformed) profiles used for the clustering
+#' @param clusters Vector of cluster labels corresponding to the observations in \code{profiles}
+#'
+#' @return Within cluster inertia
+#'
+#' @author Andrea Rau, Antoine Godichon-Baggioni
+#'
+#' @export
+#' @examples
+#' ## Simulate toy data, n = 300 observations
+#' set.seed(12345)
+#' countmat <- matrix(runif(300*4, min=0, max=500), nrow=300, ncol=4)
+#' countmat <- countmat[which(rowSums(countmat) > 0),]
+#' conds <- rep(c("A","B","C","D"), each=2)
+#'
+#' ## Run the K-means algorithm for logclr profiles for K = 2,..., 20
+#' run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
+#' model="kmeans")
+#' clusterInertia(tcounts(run_kmeans), clusters(run_kmeans))
+#'
+clusterInertia <- function(profiles, clusters) {
+  inertia <- NULL
+  ## TODO: check that the length of clusters equals profiles
+  for(k in seq_len(max(clusters))){
+    II <- which(clusters==k)
+    if(length(II) > 1) {
+      tmp <- as.matrix(profiles[II,])
+      inertia <- c(inertia, sum(t(t(tmp) - colMeans(tmp))^2))
+    } else inertia <- c(inertia, 0)
+  }
+  return(inertia)
+}
+
+
 #' Permute columns of a contingency table
 #'
 #' Permute the columns of a contingency table comparing two clusterings
@@ -509,7 +608,8 @@ matchContTable <- function(table_1, table_2){
 #' @param transformation Transformation type to be used: \dQuote{\code{arcsin}},
 #' \dQuote{\code{logit}}, \dQuote{\code{logMedianRef}}, \dQuote{\code{profile}},
 #' \dQuote{\code{voom}}, \dQuote{\code{logRPKM}} (if \code{geneLength} is provided by user),
-#' \dQuote{\code{none}}
+#' \dQuote{\code{logclr}}, \dQuote{\code{clr}}, \dQuote{\code{alr}}, \dQuote{\code{ilr}},
+#' \dQuote{\code{none}},
 #' @param geneLength Vector of length equal to the number of rows in \dQuote{\code{y}} providing
 #' the gene length (bp) for RPKM calculation
 #' @param meanFilterCutoff Value used to filter low mean normalized counts
@@ -539,8 +639,7 @@ matchContTable <- function(table_1, table_2){
 #' @importFrom HTSFilter HTSBasicFilter
 #' @importFrom DESeq2 varianceStabilizingTransformation
 #' @importFrom stats median
-
-
+#' @importFrom compositions alr clr ilr
 transformRNAseq <- function(y, normFactors="TMM", transformation="arcsin",
                              geneLength=NA, meanFilterCutoff=NULL, verbose=TRUE) {
 
@@ -638,6 +737,44 @@ transformRNAseq <- function(y, normFactors="TMM", transformation="arcsin",
     tcounts <- log2((t(t(y)/snorm) + 1)/(m+1))
     stemp <- matrix(rep(snorm, each = nrow(y)), nrow=nrow(y))
   }
+  if(transformation == "logclr") {
+    profiles <- normCounts / rowSums(normCounts)
+    tcounts <- logclr(profiles)
+  }
+  if(transformation == "logclr") {
+    profiles <- normCounts / rowSums(normCounts)
+    tcounts <- logclr(profiles)
+  }
+  if(transformation == "clr") {
+    profiles <- normCounts / rowSums(normCounts)
+    tmp <- clr(profiles)
+    ## Remove the rmult attributes to keep only a matrix
+    attributes(tmp) <- NULL
+    tmp <- matrix(tmp, nrow=nrow(normCounts), ncol=ncol(normCounts))
+    rownames(tmp) <- rownames(normCounts)
+    colnames(tmp) <- colnames(normCounts)
+    tcounts <- tmp
+  }
+  if(transformation == "alr") {
+    profiles <- normCounts / rowSums(normCounts)
+    tmp <- alr(profiles)
+    ## Remove the rmult attributes to keep only a matrix
+    attributes(tmp) <- NULL
+    tmp <- matrix(tmp, nrow=nrow(normCounts), ncol=ncol(normCounts))
+    rownames(tmp) <- rownames(normCounts)
+    colnames(tmp) <- colnames(normCounts)
+    tcounts <- tmp
+  }
+  if(transformation == "ilr") {
+    profiles <- normCounts / rowSums(normCounts)
+    tmp <- ilr(profiles)
+    ## Remove the rmult attributes to keep only a matrix
+    attributes(tmp) <- NULL
+    tmp <- matrix(tmp, nrow=nrow(normCounts), ncol=ncol(normCounts))
+    rownames(tmp) <- rownames(normCounts)
+    colnames(tmp) <- colnames(normCounts)
+    tcounts <- tmp
+  }
   ##################################
   ## Old transformations (kept for reference)
   ##################################
@@ -719,4 +856,24 @@ convertLegacyCoseq <- function(object, digits=3) {
                          y_profiles=y_profilesDF,
                          normFactors=numeric())
   return(newobj)
+}
+
+
+
+#' Calculate the Log Centered Log Ratio (logCLR) transformation
+#'
+#' @param profiles Matrix of profiles
+#'
+#' @return logCLR-transformed profiles
+#' @export
+logclr <- function(profiles)
+{
+  d <- ncol(profiles)
+  n <- nrow(profiles)
+  ## TODO: add error message if there are 0's
+  tprofiles <- profiles / exp(rowMeans(log(profiles)))
+  tprofiles2 <- matrix(NA, nrow=nrow(tprofiles), ncol=ncol(tprofiles))
+  tprofiles2[which(tprofiles <= 1)] <- -(log(1-log(tprofiles[which(tprofiles <= 1)]))^2)
+  tprofiles2[which(tprofiles > 1)] <- (log(tprofiles[which(tprofiles > 1)]))^2
+  return(tprofiles2)
 }

@@ -32,7 +32,7 @@ observations and \emph{q} variables to be used for graphing results (optional fo
 \code{logLike}, \code{ICL}, \code{probapost_boxplots}, and \code{probapost_barplots},
 and by default takes value \code{x$tcounts} if \code{NULL})}
 
-\item{K}{If desired, the specific model to use for plotting (or the specific cluster number(s) 
+\item{K}{If desired, the specific model to use for plotting (or the specific cluster number(s)
 to use for plotting in the case of \code{coseqModelPlots}). If \code{NULL},
 all clusters will be visualized, and the model chosen by ICL will be plotted}
 
@@ -45,13 +45,13 @@ with maximum conditional probability greater than this threshold are visualized}
 each condition identified by \code{conds} for the \code{profiles} and \code{boxplots}
 plots}
 
-\item{graphs}{Graphs to be produced, one (or more) of the following: 
+\item{graphs}{Graphs to be produced, one (or more) of the following:
 \code{"logLike"} (log-likelihood plotted versus number of clusters),
-\code{"ICL"} (ICL plotted versus number of clusters), 
-\code{"profiles"} (line plots of profiles in each cluster), \code{"boxplots"} 
+\code{"ICL"} (ICL plotted versus number of clusters),
+\code{"profiles"} (line plots of profiles in each cluster), \code{"boxplots"}
 (boxplots of profiles in each cluster), \code{"probapost_boxplots"} (boxplots of
-maximum conditional probabilities per cluster), \code{"probapost_barplots"} 
-(number of observations with a maximum conditional probability greater than 
+maximum conditional probabilities per cluster), \code{"probapost_barplots"}
+(number of observations with a maximum conditional probability greater than
 \code{threshold} per cluster), \code{"probapost_histogram"} (histogram of maximum
 conditional probabilities over all clusters)}
 
@@ -59,11 +59,11 @@ conditional probabilities over all clusters)}
 \code{probapost_barplot} by number of observations with maximum conditional probability
 greater than \code{threshold}}
 
-\item{profiles_order}{If \code{NULL} or \code{FALSE}, line plots and boxplots of profiles are 
+\item{profiles_order}{If \code{NULL} or \code{FALSE}, line plots and boxplots of profiles are
 plotted sequentially by cluster number (K=1, K=2, ...). If \code{TRUE}, line plots and boxplots of
 profiles are plotted in an automatically calculated order (according to the Euclidean distance
-between cluster means) to plot clusters with similar mean profiles next to one another. 
-Otherwise, the user may provide a vector (of length equal to the number of clusters in the 
+between cluster means) to plot clusters with similar mean profiles next to one another.
+Otherwise, the user may provide a vector (of length equal to the number of clusters in the
 given model) providing the desired order of plots.}
 
 \item{n_row}{Number of rows for plotting layout of line plots and boxplots of profiles.
@@ -76,10 +76,10 @@ plots will be divided over multiple pages.}
 
 \item{...}{Additional optional plotting arguments}
 
-\item{object}{An object of class \code{"RangedSummarizedExperiment"} arising from a call to 
+\item{object}{An object of class \code{"RangedSummarizedExperiment"} arising from a call to
 \code{NormMixClus}}
 
-\item{probaPost}{Matrix or data.frame of dimension (\emph{n} x \emph{K}) containing the 
+\item{probaPost}{Matrix or data.frame of dimension (\emph{n} x \emph{K}) containing the
 conditional probilities of cluster membership for \emph{n} genes in \emph{K} clusters
 arising from a mixture model}
 }
@@ -120,6 +120,11 @@ ICL(run_arcsin)
 ## Examine transformed counts and profiles used for graphing
 tcounts(run_arcsin)
 profiles(run_arcsin)
+
+## Run the K-means algorithm for logclr profiles for K = 2,..., 20
+run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
+                    model="kmeans")
+run_kmeans
 }
 \author{
 Andrea Rau, Cathy Maugis-Rabusseau

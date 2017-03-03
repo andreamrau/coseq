@@ -25,37 +25,39 @@ the TMM normalization method (Robinson and Oshlack, 2010). Can also be a
 vector (of length \emph{q}) containing pre-estimated library size estimates
 for each sample.}
 
-\item{model}{Type of mixture model to use (\dQuote{\code{Poisson}} or \dQuote{\code{Normal}})}
+\item{model}{Type of mixture model to use (\dQuote{\code{Poisson}} or \dQuote{\code{Normal}}), or alternatively
+\dQuote{\code{kmeans}} for a K-means algorithm}
 
 \item{transformation}{Transformation type to be used: \dQuote{\code{voom}}, \dQuote{\code{logRPKM}}
 (if \code{geneLength} is provided by user), \dQuote{\code{arcsin}}, \dQuote{\code{logit}},
-\dQuote{\code{logMedianRef}}, \dQuote{\code{profile}}, \dQuote{\code{none}}}
+\dQuote{\code{logMedianRef}}, \dQuote{\code{profile}}, \dQuote{\code{logclr}}, \dQuote{\code{clr}},
+\dQuote{\code{alr}}, \dQuote{\code{ilr}}, or \dQuote{\code{none}}}
 
 \item{subset}{Optional vector providing the indices of a subset of
 genes that should be used for the co-expression analysis (i.e., row indices
 of the data matrix \code{y}. For the generic function \code{coseq}, the results of a previously
-run differential analysis may be used to select a subset of genes on which to perform the 
-co-expression analysis. If this is desired, \code{subset.index} can also be an object of class 
+run differential analysis may be used to select a subset of genes on which to perform the
+co-expression analysis. If this is desired, \code{subset.index} can also be an object of class
 DESeqResults (from the \code{results} function in \code{DESeq2}).}
 
 \item{meanFilterCutoff}{Value used to filter low mean normalized counts if desired (by default,
 set to a value of 50)}
 
-\item{modelChoice}{Criterion used to select the best model. For Gaussian mixture models, 
+\item{modelChoice}{Criterion used to select the best model. For Gaussian mixture models,
 \dQuote{\code{ICL}} (integrated completed likelihood criterion) is currently supported. For Poisson
 mixture models, \dQuote{\code{ICL}}, \dQuote{\code{BIC}} (Bayesian information criterion), and a
 non-asymptotic criterion calibrated via the slope heuristics  using either the \dQuote{\code{DDSE}}
 (data-driven slope estimation) or \dQuote{\code{Djump}} (dimension jump) approaches may be used.
 See the \code{HTSCluster} package documentation for more details about the slope heuristics approaches.}
 
-\item{parallel}{If \code{FALSE}, no parallelization. If \code{TRUE}, parallel 
-execution using BiocParallel (see next argument \code{BPPARAM}). A note on running 
-in parallel using BiocParallel: it may be advantageous to remove large, unneeded objects 
-from the current R environment before calling the function, as it is possible that R's 
+\item{parallel}{If \code{FALSE}, no parallelization. If \code{TRUE}, parallel
+execution using BiocParallel (see next argument \code{BPPARAM}). A note on running
+in parallel using BiocParallel: it may be advantageous to remove large, unneeded objects
+from the current R environment before calling the function, as it is possible that R's
 internal garbage collection will copy these files while running on worker nodes.}
 
-\item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} when 
-\code{parallel=TRUE}. If not specified, the parameters last registered with \code{register} 
+\item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} when
+\code{parallel=TRUE}. If not specified, the parameters last registered with \code{register}
 will be used.}
 
 \item{...}{Additional optional parameters.}
@@ -63,8 +65,8 @@ will be used.}
 \value{
 An S4 object of class \code{coseqResults} whose assays contain a \code{SimpleList}
 object, where each element in the list corresponds to the conditional probabilities of cluster membership
-for each gene in each model. Meta data (accessible via \code{metatdata} include the \code{model} used 
-(either \code{Normal} or \code{Poisson}), the \code{transformation} used on the data, the 
+for each gene in each model. Meta data (accessible via \code{metatdata} include the \code{model} used
+(either \code{Normal} or \code{Poisson}), the \code{transformation} used on the data, the
 transformed data using to estimate model (\code{tcounts}), the normalized profiles for use in plotting
 (\code{y_profiles}), and the normalization factors used in the analysis (\code{normFactors}).
 }

@@ -38,7 +38,7 @@ meta-information about the co-expression analysis (\code{transformation},
 }
 \details{
 This constructor function would not typically be used by "end users".
-This simple class extends the \code{RangedSummarizedExperiment} class of the 
+This simple class extends the \code{RangedSummarizedExperiment} class of the
 SummarizedExperiment package
 to allow other packages to write methods for results
 objects from the coseq package. It is used by \code{\link{coseqRun}}

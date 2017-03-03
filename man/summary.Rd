@@ -23,10 +23,11 @@ for mixture model parameters}
 Summary of the \code{coseqResults} object.
 }
 \description{
-A function to summarize the clustering results obtained from a Poisson or 
+A function to summarize the clustering results obtained from a Poisson or
 Gaussian mixture model estimated using \code{coseq}. In particular,
 the function provides the number of clusters selected for the ICL
-model selection approach, number of genes assigned to each cluster, and
+model selection approach (or alternatively, for the capushe non-asymptotic approach
+if K-means clustering is used), number of genes assigned to each cluster, and
 if desired the per-gene cluster means.
 }
 \details{
@@ -42,7 +43,7 @@ observations) for the selected model.
 greater than 90% (and corresponding percentage of total observations per
 cluster) for the selected model.
 
-4) If desired, the \eqn{\ensuremath\boldsymbol{\mu}}{\mu} values and 
+4) If desired, the \eqn{\ensuremath\boldsymbol{\mu}}{\mu} values and
 \eqn{\ensuremath\boldsymbol{\pi}}{\pi} values for the selected
 model in the case of a Gaussian mixture model.
 }
@@ -77,6 +78,11 @@ ICL(run_arcsin)
 ## Examine transformed counts and profiles used for graphing
 tcounts(run_arcsin)
 profiles(run_arcsin)
+
+## Run the K-means algorithm for logclr profiles for K = 2,..., 20
+run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
+                    model="kmeans")
+run_kmeans
 }
 \author{
 Andrea Rau
