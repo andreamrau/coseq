@@ -6,7 +6,7 @@
 #' (to choose an appropriate number of clusters) are provided.
 #'
 #' \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-#' \tab 0.99.8\cr Date: \tab 2017-03-02\cr License: \tab GPL (>=3)\cr LazyLoad:
+#' \tab 0.99.9\cr Date: \tab 2017-03-27\cr License: \tab GPL (>=3)\cr LazyLoad:
 #' \tab yes\cr }
 #'
 #' @name coseq-package

@@ -1,14 +1,14 @@
 Package: coseq
 Type: Package
 Title: Co-Expression Analysis of Sequencing Data
-Version: 0.99.8
-Date: 2017-03-02
+Version: 0.99.9
+Date: 2017-03-27
 Author: Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 Maintainer: Andrea Rau <andrea.rau@jouy.inra.fr>
 Depends: R (>= 3.4.0), SummarizedExperiment, S4Vectors
 Imports: edgeR, DESeq2, capushe, Rmixmod, e1071, BiocParallel, ggplot2
         (>= 2.1.0), scales, HTSFilter, corrplot, HTSCluster (>= 2.0.8),
-        gridExtra, grDevices, graphics, stats, methods, compositions
+        gridExtra, grDevices, graphics, stats, methods, compositions, mvtnorm
 Suggests: Biobase, knitr, rmarkdown, testthat
 Description: Co-expression analysis for expression profiles arising from
         high-throughput sequencing data. Feature (e.g., gene) profiles 

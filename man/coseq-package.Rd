@@ -12,7 +12,7 @@ mixture models or a K-means algorithm, and model selection criteria
 }
 \details{
 \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-\tab 0.99.8\cr Date: \tab 2017-03-02\cr License: \tab GPL (>=3)\cr LazyLoad:
+\tab 0.99.9\cr Date: \tab 2017-03-27\cr License: \tab GPL (>=3)\cr LazyLoad:
 \tab yes\cr }
 }
 \examples{

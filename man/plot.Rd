@@ -74,7 +74,7 @@ plots will be divided over multiple pages.}
 Note that if \code{n_row} x \code{n_col} is less than the total number of clusters plotted,
 plots will be divided over multiple pages.}
 
-\item{...}{Additional optional plotting arguments}
+\item{...}{Additional optional plotting arguments (e.g., xlab, ylab, use_sample_names, facet_labels)}
 
 \item{object}{An object of class \code{"RangedSummarizedExperiment"} arising from a call to
 \code{NormMixClus}}
@@ -84,7 +84,7 @@ conditional probilities of cluster membership for \emph{n} genes in \emph{K} clu
 arising from a mixture model}
 }
 \value{
-Plots of the \code{coseqResults} object.
+Named list of plots of the \code{coseqResults} object.
 }
 \description{
 Plot a coseqResults object.

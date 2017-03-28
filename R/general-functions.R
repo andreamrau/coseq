@@ -269,7 +269,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
     ICL.all <- run$ICL.all
 
     pp <- lapply(run$all.results, function(x) {
-      tmp <- x$probaPost
+      tmp <- round(x$probaPost, digits=arg.user$digits)
       colnames(tmp) <- paste0("Cluster_", seq_len(ncol(tmp)))
       rownames(tmp) <- rownames(tcounts$tcounts)
       return(tmp)
@@ -324,7 +324,10 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
 
   if(length(model) & model == "kmeans") {
 
-    ## TODO: add message about transformations here
+    if(!transformation %in% c("clr", "alr", "logclr", "ilr")) {
+      message("Transformation used is: ", transformation, "\n
+              Typically one of the following transformations is used with K-means: clr, alr, ilr, logclr")
+    }
     tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation=transformation,
                                geneLength=arg.user$geneLength,
                                meanFilterCutoff=meanFilterCutoff, verbose=FALSE)
@@ -334,22 +337,42 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
     tot_withinss <- c() ## Initialisation pour l'inertie intra
     names(km_cluster) <- paste0("K=", K)
 
-    ## TODO: add possibility to parallelize
-    for(k in K) {
-      km <- kmeans(tcounts$tcounts, centers=k, iter.max=arg.user$iter.max, nstart=arg.user$nstart,
-                algorithm=arg.user$algorithm, trace=arg.user$trace)
-      km_cluster[[paste0("K=",k)]] <- km$cluster
-      tot_withinss <- c(tot_withinss, km$tot.withinss)
+    if(!parallel) {
+      for(k in K) {
+        km <- kmeans(tcounts$tcounts, centers=k, iter.max=arg.user$iter.max, nstart=arg.user$nstart,
+                     algorithm=arg.user$algorithm, trace=arg.user$trace)
+        km_cluster[[paste0("K=",k)]] <- km$cluster
+        tot_withinss <- c(tot_withinss, km$tot.withinss)
+      }
+      names(tot_withinss) <- paste0("K=", K)
     }
-    names(tot_withinss) <- paste0("K=", K)
-    ## TODO: add error if less than 10 clusters
+    if(parallel) {
+      tot_withinss <- rep(NA, length(K)) ## Initialisation pour l'inertie intra
+      names(tot_withinss) <- paste0("K=", K)
+      tmp <- bplapply(K, function(ii) {
+        cat("Running K =", ii, "...\n")
+        km <- kmeans(tcounts$tcounts, centers=as.numeric(ii), iter.max=arg.user$iter.max,
+                     nstart=arg.user$nstart,
+                     algorithm=arg.user$algorithm, trace=arg.user$trace)
+        return(km)}, BPPARAM=BPPARAM)
+      Kmods <- paste0("K=", unlist(lapply(tmp, function(x) length(x$size))))
+      km_cluster <- tmp[na.omit(match(names(km_cluster), Kmods))]$cluster
+      tot_withinss <- tmp[na.omit(match(names(tot_withinss), Kmods))]$tot.withinss
+    }
+
+    if(length(K) < 10)
+      warning("Be careful: for model selection via capushe, at least 10 models should be estimated.")
     cap <- suppressWarnings(capushe(matrix(c(K, sqrt(n*d*K), sqrt(n*d*K), tot_withinss), ncol=4)))
     K_select <- paste0("K=",DDSEextract(cap)[1]) # nombre de classes séléctionné par capushe
     cluster_select <- km_cluster[[K_select]]
-    pp_select <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=as.numeric(DDSEextract(cap)[1]))
-    pp_select[cbind(seq_len(length(cluster_select)), cluster_select)] <- 1
-    colnames(pp_select) <- paste0("Cluster_", seq_len(ncol(pp_select)))
-    rownames(pp_select) <- rownames(tcounts$tcounts)
+
+    ## Keep the estimated posterior probabilities for K-means rather than just the cluster labels
+    pp_select <- round(kmeansProbaPost(clusters=cluster_select, tcounts=tcounts$tcounts), arg.user$digits)
+    # pp_select <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=as.numeric(DDSEextract(cap)[1]))
+    # pp_select[cbind(seq_len(length(cluster_select)), cluster_select)] <- 1
+    # colnames(pp_select) <- paste0("Cluster_", seq_len(ncol(pp_select)))
+    # rownames(pp_select) <- rownames(tcounts$tcounts)
+
     nbClust.all <- K
     names(nbClust.all) <- names(km_cluster)
 
@@ -363,11 +386,13 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
     all.results <- vector("list", length(K))
     names(all.results) <- paste0("K=", K)
     for(k in K) {
-      all.results[[paste0("K=",k)]] <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=k)
-      all.results[[paste0("K=",k)]][cbind(seq_len(length(km_cluster[[paste0("K=", k)]])),
-                                          km_cluster[[paste0("K=", k)]])] <- 1
-      colnames(all.results[[paste0("K=",k)]]) <- paste0("Cluster_", seq_len(ncol(all.results[[paste0("K=",k)]])))
-      rownames(all.results[[paste0("K=",k)]]) <- rownames(tcounts$tcounts)
+      all.results[[paste0("K=",k)]] <- round(kmeansProbaPost(clusters=km_cluster[[paste0("K=", k)]],
+                                                       tcounts=tcounts$tcounts), arg.user$digits)
+      # all.results[[paste0("K=",k)]] <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=k)
+      # all.results[[paste0("K=",k)]][cbind(seq_len(length(km_cluster[[paste0("K=", k)]])),
+      #                                     km_cluster[[paste0("K=", k)]])] <- 1
+      # colnames(all.results[[paste0("K=",k)]]) <- paste0("Cluster_", seq_len(ncol(all.results[[paste0("K=",k)]])))
+      # rownames(all.results[[paste0("K=",k)]]) <- rownames(tcounts$tcounts)
     }
 
     run <- coseqResults(as(select.results, "RangedSummarizedExperiment"), allResults=all.results)
@@ -392,6 +417,66 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
   return(RESULTS)
 }
 
+
+
+#' Calculate conditional probabilities of cluster membership for K-means clustering
+#'
+#' @param clusters Cluster labels arising from K-means clustering
+#' @param tcounts Transformed counts clustered using K-means
+#'
+#' @return Conditional probabilities of cluster membership for each observation in each cluster
+#' @export
+#' @importFrom mvtnorm dmvnorm
+#'
+#' @examples
+#' ## Example of K-means taken from ?kmeans help page
+#' x <- rbind(matrix(rnorm(100, sd = 0.3), ncol = 2),
+#'            matrix(rnorm(100, mean = 1, sd = 0.3), ncol = 2))
+#'            colnames(x) <- c("x", "y")
+#' cl <- kmeans(x, 5)
+#' probaPost <- kmeansProbaPost(cl$cluster, x)
+#' head(probaPost)
+kmeansProbaPost <- function(clusters, tcounts) {
+
+  ## nombre de classe selectionne
+  K <- max(clusters)
+  ## initialisation pour les centres des classes
+  centers <- matrix(0, nrow=K, ncol=ncol(tcounts))
+  ## init pour la matrice des distances aux centres/inertie interdensite
+  dens <- matrix(0, nrow=nrow(tcounts), ncol=K)
+  withinss <- c() ###initialisation pour les inerties inter
+  size <- c() ### initialisation pour les tailles de classes
+  atyp <- c() ### indices des classes a un element
+
+  ### calcul des centres et tailles des classes
+  for(k in 1:K) {
+    I <- which(clusters == k)
+    size <- c(size,length(I))
+    if(length(I) > 1) {
+      centers[k,] <- colMeans(tcounts[I,])
+      var <- mean((t(t(tcounts[I,]) - colMeans(tcounts[I,])))^2)
+      withinss <- c(withinss, var)
+      dens[,k] <- length(I)* dmvnorm(tcounts,centers[k,],var/ncol(tcounts)*diag(ncol(tcounts)))
+    }
+    ## For clusters containing only a single observation
+    if(length(I) == 1) {
+      centers[k,] <- tcounts[I,]
+      var <- 0
+      dens[,k] <- rep(0,nrow(tcounts))
+      atyp <- c(atyp,k)
+    }
+  }
+  tauik <- dens/matrix(rep(rowSums(dens),K), nrow=nrow(tcounts))
+  if(length(atyp)) {
+    for(kk in atyp) {
+      I <- which(clusters == kk) #### mettre une proba 1 aux elements seuls dans leur classe
+      tauik[I,kk] <- 1
+    }
+  }
+  rownames(tauik) <- rownames(tcounts)
+  colnames(tauik) <- paste0("Cluster_", seq_len(K))
+  return(tauik)
+}
 
 
 
@@ -741,10 +826,6 @@ transformRNAseq <- function(y, normFactors="TMM", transformation="arcsin",
     profiles <- normCounts / rowSums(normCounts)
     tcounts <- logclr(profiles)
   }
-  if(transformation == "logclr") {
-    profiles <- normCounts / rowSums(normCounts)
-    tcounts <- logclr(profiles)
-  }
   if(transformation == "clr") {
     profiles <- normCounts / rowSums(normCounts)
     tmp <- clr(profiles)
@@ -862,7 +943,7 @@ convertLegacyCoseq <- function(object, digits=3) {
 
 #' Calculate the Log Centered Log Ratio (logCLR) transformation
 #'
-#' @param profiles Matrix of profiles
+#' @param profiles Matrix of profiles. Note that the presence of 0 values causes an error message to be produced.
 #'
 #' @return logCLR-transformed profiles
 #' @export
@@ -870,7 +951,8 @@ logclr <- function(profiles)
 {
   d <- ncol(profiles)
   n <- nrow(profiles)
-  ## TODO: add error message if there are 0's
+  if(length(which(profiles == 0)))
+    stop("log-CLR transformation cannot be performed when there are 0's in the profiles matrix")
   tprofiles <- profiles / exp(rowMeans(log(profiles)))
   tprofiles2 <- matrix(NA, nrow=nrow(tprofiles), ncol=ncol(tprofiles))
   tprofiles2[which(tprofiles <= 1)] <- -(log(1-log(tprofiles[which(tprofiles <= 1)]))^2)

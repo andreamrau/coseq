@@ -7,7 +7,7 @@
 logclr(profiles)
 }
 \arguments{
-\item{profiles}{Matrix of profiles}
+\item{profiles}{Matrix of profiles. Note that the presence of 0 values causes an error message to be produced.}
 }
 \value{
 logCLR-transformed profiles
