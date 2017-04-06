@@ -53,9 +53,9 @@ setMethod("coseq",
               if(nrow(subset) != nrow(y)) stop("y and subset must have the same number of rows")
               res <- subset
               subset.index <- which(res$padj < metadata(res)$alpha)
+              cat("****************************************\n")
               cat("Co-expression analysis on DESeq2 output:\n")
               cat(paste(length(subset.index), "DE genes at p-adj <", metadata(res)$alpha, "\n"))
-              cat("****************************************\n")
               run <- coseqRun(y=y, K=K, subset=subset.index, model=model, transformation=transformation,
                               normFactors="DESeq", meanFilterCutoff=NULL, modelChoice=modelChoice,
                                parallel=parallel,
@@ -69,9 +69,9 @@ setMethod("coseq",
                 alpha <- arg.user$alpha
               }
               subset.index <- which(p.adjust(subset$table$PValue, method="BH") < alpha)
+              cat("****************************************\n")
               cat("Co-expression analysis on edgeR output:\n")
               cat(paste(length(subset.index), "DE genes at p-adj <", alpha, "\n"))
-              cat("****************************************\n")
               run <- coseqRun(y=y, K=K, subset=subset.index, model=model, transformation=transformation,
                               normFactors="TMM", meanFilterCutoff=NULL, modelChoice=modelChoice,
                                parallel=parallel,
@@ -131,9 +131,9 @@ setMethod("coseq", signature=signature(object="DESeqDataSet"),
             if(!is.null(dots_DESeq$alpha)) res <- results(y, alpha=dots_DESeq$alpha)
             normFactors <- sizeFactors(y)
             subset.index <- which(res$padj < metadata(res)$alpha)
+            cat("****************************************\n")
             cat("Co-expression analysis on DESeq2 output:\n")
             cat(paste(length(subset.index), "DE genes at p-adj <", metadata(res)$alpha, "\n"))
-            cat("****************************************\n")
             meanFilterCutoff <- NULL
 
             run <- do.call(coseqRun, list(y=count_matrix, K=K, subset=subset.index, model=model,
@@ -164,14 +164,17 @@ setMethod("coseq", signature=signature(object="DESeqDataSet"),
 #' likelihood,MixmodCluster-method
 #' likelihood,RangedSummarizedExperiment-method
 #' likelihood,coseqResults-method
+#' likelihood,NULL-method
 #' nbCluster
 #' nbCluster,MixmodCluster-method
 #' nbCluster,RangedSummarizedExperiment-method
 #' nbCluster,coseqResults-method
+#' nbCluster,NULL-method
 #' ICL
 #' ICL,RangedSummarizedExperiment-method
 #' ICL,mixmodCluster-method
 #' ICL,coseqResults-method
+#' ICL,NULL-method
 #' profiles
 #' profiles,coseqResults-method
 #' tcounts
@@ -247,6 +250,10 @@ setMethod("likelihood", "RangedSummarizedExperiment", function(object) metadata(
 #' @export
 setMethod("likelihood", "coseqResults", function(object) metadata(object)$logLike)
 
+#' @rdname coseqHelpers
+#' @export
+setMethod("likelihood", "NULL", function(object) NA)
+
 #########################################################################################
 
 #' @rdname coseqHelpers
@@ -261,6 +268,10 @@ setMethod("nbCluster", "RangedSummarizedExperiment", function(object) metadata(o
 #' @export
 setMethod("nbCluster", "coseqResults", function(object) metadata(object)$nbCluster)
 
+#' @rdname coseqHelpers
+#' @export
+setMethod("nbCluster", "NULL", function(object) NA)
+
 #########################################################################################
 
 #' @rdname coseqHelpers
@@ -274,6 +285,11 @@ setMethod("ICL", "MixmodCluster", function(object) object["bestResult"]@criterio
 #' @rdname coseqHelpers
 #' @export
 setMethod("ICL", "coseqResults", function(object) metadata(object)$ICL)
+
+#' @rdname coseqHelpers
+#' @export
+setMethod("ICL", "NULL", function(object) NA)
+
 
 #########################################################################################
 

@@ -88,12 +88,11 @@ NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bppar
     } else if(parallel) {
       tmp <- bplapply(remainingK, function(ii, N_y_profiles, N_alg.type, N_init.runs,
                                            N_init.type, N_init.iter, N_iter, N_cutoff,
-                                           N_GaussianModel, N_digits, N_verbose) {
+                                           N_GaussianModel, N_digits, N_verbose, N_FUNC) {
         if(N_verbose == TRUE) {
           cat("Running K =", ii, "...\n")
         }
-#        library(coseq)
-        res <- suppressWarnings(NormMixClusK(y_profiles=N_y_profiles, K=as.numeric(ii),
+        res <- suppressWarnings(N_FUNC(y_profiles=N_y_profiles, K=as.numeric(ii),
                                               alg.type=N_alg.type, init.runs=N_init.runs,
                                               init.type=N_init.type, init.iter=N_init.iter,
                                               iter=N_iter, cutoff=N_cutoff,
@@ -103,7 +102,7 @@ NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bppar
         N_y_profiles=y_profiles, N_alg.type=arg.user$alg.type, N_init.runs = arg.user$init.runs,
         N_init.type=arg.user$init.type, N_init.iter=arg.user$init.iter, N_iter=arg.user$iter,
         N_cutoff=arg.user$cutoff, N_GaussianModel=arg.user$GaussianModel, N_digits=arg.user$digits,
-        N_verbose=arg.user$verbose,
+        N_verbose=arg.user$verbose, N_FUNC=NormMixClusK,
         BPPARAM=BPPARAM)
       if(!sum(unlist(lapply(tmp, nrow)))) {
         stop(paste("All models of form", arg.user$GaussianModel, "resulted in estimation errors.
@@ -136,7 +135,10 @@ coseq(..., GaussianModel = \"Gaussian_pk_Lk_I\")"))
   ICL.choose <- names(ICL.all)[which.min(ICL.all)]
   select.results <- all.results[[ICL.choose]]
 
-  pp <- lapply(all.results, function(x) assay(x))
+  pp <- lapply(all.results, function(x) {
+    if(is.null(x)) NULL
+    if(!is.null(x)) assay(x)
+    })
   names(pp) <- names(all.results)
 
   select.results <- SummarizedExperiment(assay(select.results),

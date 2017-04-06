@@ -91,7 +91,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
                    verbose=TRUE, digits=3,
                    Kmin.init="small-em", split.init=FALSE, fixed.lambda=NA,
                    equal.proportions=FALSE, EM.verbose=FALSE, interpretation="sum",
-                   geneLength=NA, iter.max=10, nstart=1, algorithm="MacQueen", trace=FALSE)
+                   geneLength=NA, iter.max=50, nstart=50, algorithm="MacQueen", trace=FALSE)
 
   if(model == "Poisson") {
     arg.user$init.runs <- 1
@@ -101,7 +101,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
   }
   arg.user[names(providedArgs)] <- providedArgs
 
-
+  cat("****************************************\n")
   cat("coseq analysis:", model, "approach &", transformation, "transformation\n")
   cat("K =", min(K), "to", max(K), "\n")
   cat("****************************************\n")

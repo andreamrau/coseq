@@ -8,6 +8,7 @@
 \alias{Djumpextract,Capushe-method}
 \alias{ICL}
 \alias{ICL,MixmodCluster-method}
+\alias{ICL,NULL-method}
 \alias{ICL,RangedSummarizedExperiment-method}
 \alias{ICL,coseqResults-method}
 \alias{ICL,mixmodCluster-method}
@@ -20,12 +21,14 @@
 \alias{coseqFullResults,coseqResults-method}
 \alias{likelihood}
 \alias{likelihood,MixmodCluster-method}
+\alias{likelihood,NULL-method}
 \alias{likelihood,RangedSummarizedExperiment-method}
 \alias{likelihood,coseqResults-method}
 \alias{model}
 \alias{model,coseqResults-method}
 \alias{nbCluster}
 \alias{nbCluster,MixmodCluster-method}
+\alias{nbCluster,NULL-method}
 \alias{nbCluster,RangedSummarizedExperiment-method}
 \alias{nbCluster,coseqResults-method}
 \alias{proba}
@@ -78,17 +81,23 @@ Djumpextract(object, ...)
 
 \S4method{likelihood}{coseqResults}(object)
 
+\S4method{likelihood}{`NULL`}(object)
+
 \S4method{nbCluster}{MixmodCluster}(object)
 
 \S4method{nbCluster}{RangedSummarizedExperiment}(object)
 
 \S4method{nbCluster}{coseqResults}(object)
 
+\S4method{nbCluster}{`NULL`}(object)
+
 \S4method{ICL}{RangedSummarizedExperiment}(object)
 
 \S4method{ICL}{MixmodCluster}(object)
 
 \S4method{ICL}{coseqResults}(object)
+
+\S4method{ICL}{`NULL`}(object)
 
 \S4method{profiles}{coseqResults}(object)
 

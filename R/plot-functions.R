@@ -67,7 +67,7 @@
 #' @importFrom graphics matplot boxplot
 #' @importFrom grDevices heat.colors
 #' @importFrom scales alpha
-#' @importFrom stats hclust dist
+#' @importFrom stats hclust dist na.omit
 #' @importFrom gridExtra marrangeGrob
 #' @import ggplot2
 setMethod("plot", signature=signature(x="coseqResults"),
@@ -142,9 +142,9 @@ coseqGlobalPlots <- function(object, graphs=c("logLike", "ICL"), ...) {
   arg.user <- list(...)
   if(is.null(arg.user$alpha)) arg.user$alpha <- 0.3
 
-  pl_data <- data.frame(Cluster = nbCluster(object),
+  pl_data <- na.omit(data.frame(Cluster = nbCluster(object),
                         logLike = likelihood(object),
-                        ICL = ICL(object))
+                        ICL = ICL(object)))
 
   ## Likelihood plot
   if("logLike" %in% graphs) {

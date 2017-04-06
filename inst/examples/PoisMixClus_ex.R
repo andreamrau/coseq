@@ -6,7 +6,7 @@ conds <- rep(c("A","B"), each=2)
 rownames(countmat) <- paste0("Gene_", seq_len(nrow(countmat)))
 
 ## Run the Poisson mixture model for K = 2,3
-run <- coseq(object=countmat, K=2:3, conds=conds, iter=5, model="Poisson")
+run <- coseq(object=countmat, K=2:3, conds=conds, iter=5, model="Poisson", transformation="none")
 run
 summary(run)
 plot(run, graphs="profiles")

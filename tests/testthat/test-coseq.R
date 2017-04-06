@@ -62,6 +62,8 @@ test_that("compareICL, clusterEntropy, transformRNAseq", {
 
 })
 
+
+
 #-------------------------------------------------------------------------------
 context("NormMixClus tests")
 test_that("NormMixClus working", {

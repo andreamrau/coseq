@@ -30,7 +30,7 @@ conds <- rep(c("A","B","C","D"), each=2)
 ## Run the K-means algorithm for logclr profiles for K = 2,..., 20
 run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
 model="kmeans")
-clusterInertia(tcounts(run_kmeans), clusters(run_kmeans))
+clusterInertia(profiles=tcounts(run_kmeans), clusters=clusters(run_kmeans))
 
 }
 \author{
