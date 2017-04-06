@@ -72,14 +72,17 @@
 #'
 #' ## Run the Normal mixture model for K = 2,3,4
 #' ## The following are equivalent:
-#' run <- coseqRun(y=countmat, K=2:4, iter=5, transformation="arcsin")
-#' run <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin")
+#' run <- coseqRun(y=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")
+#' run <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")
 #'
-coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transformation="arcsin",
-                      subset=NULL, meanFilterCutoff=50, modelChoice="ICL",
+coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transformation="logclr",
+                      subset=NULL, meanFilterCutoff=50,
+                      modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
                       parallel=FALSE, BPPARAM=bpparam(), ...) {
 
-  subset.index <- subset
+  if(!is.null(subset)) y <- y[subset,]
+  y_profiles <- transformRNAseq(y=y, normFactors=normFactors, transformation="profile",
+                                meanFilterCutoff=meanFilterCutoff, verbose=FALSE)$tcounts
 
   ## Parse ellipsis function
   providedArgs <- list(...)
@@ -98,10 +101,10 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
   }
   arg.user[names(providedArgs)] <- providedArgs
 
-  y_profiles <- round(transformRNAseq(y=y, normFactors=normFactors, transformation="profile",
-                                       meanFilterCutoff=meanFilterCutoff, verbose=TRUE)$tcounts,
-                      digits=arg.user$digits)
 
+  cat("coseq analysis:", model, "approach &", transformation, "transformation\n")
+  cat("K =", min(K), "to", max(K), "\n")
+  cat("****************************************\n")
 
   ########################
   ## POISSON MIXTURE MODEL
@@ -125,19 +128,11 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
     y <- as.matrix(y, nrow = nrow(y), ncol = ncol(y))
     rownames(y) <- rn
 
-    ## In case only a subset of data are to be used for analysis
-    if(!is.null(subset)) {
-      y <- y[subset.index,]
-      n <- dim(y)[1]
-      cols <- dim(y)[2]
-      w <- rowSums(y)
-    }
-    if(is.null(subset)) {
-      n <- dim(y)[1]
-      cols <- dim(y)[2]
-      w <- rowSums(y)
-      subset.index <- NA
-    }
+
+    n <- dim(y)[1]
+    cols <- dim(y)[2]
+    w <- rowSums(y)
+
 
     tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation="none",
                                 geneLength=arg.user$geneLength,
@@ -149,7 +144,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
                                                  gmax=max(K), conds=conds,
                                                  norm=tcounts$ellnorm / sum(tcounts$ellnorm),
                                                  gmin.init.type=arg.user$Kmin.init,
-                                                 split.init=arg.user$split.init, subset.index=subset.index,
+                                                 split.init=arg.user$split.init, subset.index=NA,
                                                  init.runs=arg.user$init.runs, init.iter=arg.user$init.iter,
                                                  alg.type=arg.user$alg.type, cutoff=arg.user$cutoff,
                                                  iter=arg.user$iter,
@@ -172,7 +167,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
       run <- PoisMixClus(y=tcounts$tcounts, g=min(K), conds=conds,
                          norm=tcounts$ellnorm / sum(tcounts$ellnorm),
                          init.type=arg.user$Kmin.init,
-                         subset.index=subset.index,
+                         subset.index=NA,
                          wrapper=TRUE, init.runs=arg.user$init.runs,
                          init.iter=arg.user$init.iter, alg.type=arg.user$alg.type,
                          cutoff=arg.user$cutoff, iter=arg.user$iter,
@@ -187,21 +182,42 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
       index <- 2
       remainingK <- K[-which(K == min(K))]
       if(length(remainingK) > 0) {
-        tmp <- bplapply(remainingK, function(ii) {
+        tmp <- bplapply(remainingK, function(ii, P_y, P_conds, P_norm,
+                                             P_init.type,
+                                             P_init.runs, P_init.iter,
+                                             P_alg.type, P_cutoff,
+                                             P_iter, P_fixed.lambda,
+                                             P_equal.proportions, P_verbose,
+                                             P_interpretation, P_EM.verbose) {
           cat("Running K =", ii, "...\n")
-          res <- PoisMixClus(g=as.numeric(ii), y=tcounts$tcounts,
-                             conds=conds, norm=tcounts$ellnorm / sum(tcounts$ellnorm),
-                             init.type=arg.user$Kmin.init,
-                             subset.index=subset.index, wrapper=TRUE,
-                             prev.probaPost=NA, prev.labels=NA,
-                             init.runs = arg.user$init.runs, init.iter = arg.user$init.iter,
-                             alg.type = arg.user$alg.type, cutoff = arg.user$cutoff,
-                             iter = arg.user$iter, fixed.lambda = arg.user$fixed.lambda,
-                             equal.proportions = arg.user$equal.proportions,
-                             verbose = arg.user$verbose,
-                             interpretation = arg.user$interpretation,
-                             EM.verbose = arg.user$EM.verbose)
-          return(res)}, BPPARAM=BPPARAM)
+          res <- PoisMixClus(g=as.numeric(ii),
+                             y=P_y,
+                             conds=P_conds,
+                             norm=P_norm,
+                             init.type=P_init.type,
+                             subset.index=NA,
+                             wrapper=TRUE,
+                             prev.probaPost=NA,
+                             prev.labels=NA,
+                             init.runs = P_init.runs,
+                             init.iter = P_init.iter,
+                             alg.type = P_alg.type,
+                             cutoff = P_cutoff,
+                             iter = P_iter,
+                             fixed.lambda = P_fixed.lambda,
+                             equal.proportions = P_equal.proportions,
+                             verbose = P_verbose,
+                             interpretation = P_interpretation,
+                             EM.verbose = P_EM.verbose)
+          return(res)},
+          P_y=tcounts$tcounts, P_conds=conds, P_norm=tcounts$ellnorm / sum(tcounts$ellnorm),
+          P_init.type=arg.user$Kmin.init,
+          P_init.runs=arg.user$init.runs, P_init.iter=arg.user$init.iter,
+          P_alg.type=arg.user$alg.type, P_cutoff=arg.user$cutoff,
+          P_iter=arg.user$iter, P_fixed.lambda=arg.user$fixed.lambda,
+          P_equal.proportions=arg.user$equal.proportions, P_verbose=arg.user$verbose,
+          P_interpretation=arg.user$interpretation, P_EM.verbose=arg.user$EM.verbose,
+          BPPARAM=BPPARAM)
         Kmods <- paste0("K=", unlist(lapply(tmp, function(x) ncol(x$lambda))))
         all.results[-1] <- tmp[na.omit(match(names(all.results), Kmods))]
       }
@@ -282,7 +298,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
                                                                                logLike=logLike.all,ICL=ICL.all))
 
     tcountsDF = as(tcounts$tcounts, "DataFrame")
-    y_profilesDF = as(tcounts$tcounts/rowSums(tcounts$tcounts), "DataFrame")
+    y_profilesDF <- y_profiles <- as(tcounts$tcounts/rowSums(tcounts$tcounts), "DataFrame")
     run <- coseqResults(as(ICL.results, "RangedSummarizedExperiment"),
                         allResults = pp,
                         model="Poisson",
@@ -299,10 +315,10 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
   ########################
   if(length(model) & model == "Normal") {
 
+    if(modelChoice != "ICL") message("Note: only ICL is currently supported for model choice for Normal mixture models.")
     tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation=transformation,
-                                geneLength=arg.user$geneLength,
-                                meanFilterCutoff=meanFilterCutoff, verbose=FALSE)
-    run <- NormMixClus(y_profiles=tcounts$tcounts, K=K, subset=subset.index,
+                                geneLength=arg.user$geneLength, meanFilterCutoff=meanFilterCutoff, verbose=FALSE)
+    run <- NormMixClus(y_profiles=tcounts$tcounts, K=K, subset=NULL,
                        parallel=parallel,
                        BPPARAM=BPPARAM, alg.type=arg.user$alg.type,
                        init.runs=arg.user$init.runs,
@@ -313,24 +329,21 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
   }
 
 
-  if(!is.null(subset)) {
-    tcounts$tcounts <- tcounts$tcounts[subset.index,]
-    y_profiles <- y_profiles[subset.index,]
-  }
-
   ########################
   ## K-means
   ########################
 
   if(length(model) & model == "kmeans") {
 
+    if(modelChoice != "DDSE") message("Note: only DDSE is currently supported for model choice for K-means.")
     if(!transformation %in% c("clr", "alr", "logclr", "ilr")) {
       message("Transformation used is: ", transformation, "\n
-              Typically one of the following transformations is used with K-means: clr, alr, ilr, logclr")
+              Typically one of the following profile transformations is used with K-means: clr, alr, ilr, logclr")
     }
     tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation=transformation,
                                geneLength=arg.user$geneLength,
                                meanFilterCutoff=meanFilterCutoff, verbose=FALSE)
+
     n <- nrow(tcounts$tcounts)
     d <- ncol(tcounts$tcounts)
     km_cluster <- vector("list", length(K)) ## Initialisation pour les vecteurs de classification
@@ -339,6 +352,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
 
     if(!parallel) {
       for(k in K) {
+        if(arg.user$verbose) cat("Running K =", k, "...\n")
         km <- kmeans(tcounts$tcounts, centers=k, iter.max=arg.user$iter.max, nstart=arg.user$nstart,
                      algorithm=arg.user$algorithm, trace=arg.user$trace)
         km_cluster[[paste0("K=",k)]] <- km$cluster
@@ -349,29 +363,35 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
     if(parallel) {
       tot_withinss <- rep(NA, length(K)) ## Initialisation pour l'inertie intra
       names(tot_withinss) <- paste0("K=", K)
-      tmp <- bplapply(K, function(ii) {
-        cat("Running K =", ii, "...\n")
-        km <- kmeans(tcounts$tcounts, centers=as.numeric(ii), iter.max=arg.user$iter.max,
-                     nstart=arg.user$nstart,
-                     algorithm=arg.user$algorithm, trace=arg.user$trace)
-        return(km)}, BPPARAM=BPPARAM)
+      tmp <- bplapply(K, function(ii, km_tcounts, km_iter.max, km_nstart, km_algorithm,
+                                  km_trace, km_verbose) {
+        if(km_verbose) cat("Running K =", ii, "...\n")
+        km <- kmeans(km_tcounts, centers=as.numeric(ii), iter.max=km_iter.max,
+                     nstart=km_nstart,
+                    algorithm=km_algorithm, trace=km_trace)
+        return(km)}, km_tcounts=tcounts$tcounts, km_iter.max=arg.user$iter.max,
+        km_nstart=arg.user$nstart, km_algorithm=arg.user$algorithm, km_trace=arg.user$trace,
+        km_verbose=arg.user$verbose, BPPARAM=BPPARAM)
       Kmods <- paste0("K=", unlist(lapply(tmp, function(x) length(x$size))))
-      km_cluster <- tmp[na.omit(match(names(km_cluster), Kmods))]$cluster
-      tot_withinss <- tmp[na.omit(match(names(tot_withinss), Kmods))]$tot.withinss
+      km_cluster <- lapply(tmp[na.omit(match(names(km_cluster), Kmods))], function(x) x$cluster)
+      names(km_cluster) <- paste0("K=", K)
+      tot_withinss <- unlist(lapply(tmp[na.omit(match(names(km_cluster), Kmods))],
+                                    function(x) x$tot.withinss))
+      names(tot_withinss) <- Kmods
     }
 
     if(length(K) < 10)
       warning("Be careful: for model selection via capushe, at least 10 models should be estimated.")
     cap <- suppressWarnings(capushe(matrix(c(K, sqrt(n*d*K), sqrt(n*d*K), tot_withinss), ncol=4)))
-    K_select <- paste0("K=",DDSEextract(cap)[1]) # nombre de classes séléctionné par capushe
+    K_select <- paste0("K=",DDSEextract(cap)[1]) # nombre de classes s?l?ctionn? par capushe
     cluster_select <- km_cluster[[K_select]]
 
-    ## Keep the estimated posterior probabilities for K-means rather than just the cluster labels
-    pp_select <- round(kmeansProbaPost(clusters=cluster_select, tcounts=tcounts$tcounts), arg.user$digits)
-    # pp_select <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=as.numeric(DDSEextract(cap)[1]))
-    # pp_select[cbind(seq_len(length(cluster_select)), cluster_select)] <- 1
-    # colnames(pp_select) <- paste0("Cluster_", seq_len(ncol(pp_select)))
-    # rownames(pp_select) <- rownames(tcounts$tcounts)
+#   ## Keep the estimated posterior probabilities for K-means rather than just the cluster labels
+#    pp_select <- round(kmeansProbaPost(clusters=cluster_select, tcounts=tcounts$tcounts), arg.user$digits)
+    pp_select <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=as.numeric(DDSEextract(cap)[1]))
+    pp_select[cbind(seq_len(length(cluster_select)), cluster_select)] <- 1
+    colnames(pp_select) <- paste0("Cluster_", seq_len(ncol(pp_select)))
+    rownames(pp_select) <- rownames(tcounts$tcounts)
 
     nbClust.all <- K
     names(nbClust.all) <- names(km_cluster)
@@ -386,13 +406,13 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
     all.results <- vector("list", length(K))
     names(all.results) <- paste0("K=", K)
     for(k in K) {
-      all.results[[paste0("K=",k)]] <- round(kmeansProbaPost(clusters=km_cluster[[paste0("K=", k)]],
-                                                       tcounts=tcounts$tcounts), arg.user$digits)
-      # all.results[[paste0("K=",k)]] <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=k)
-      # all.results[[paste0("K=",k)]][cbind(seq_len(length(km_cluster[[paste0("K=", k)]])),
-      #                                     km_cluster[[paste0("K=", k)]])] <- 1
-      # colnames(all.results[[paste0("K=",k)]]) <- paste0("Cluster_", seq_len(ncol(all.results[[paste0("K=",k)]])))
-      # rownames(all.results[[paste0("K=",k)]]) <- rownames(tcounts$tcounts)
+      # all.results[[paste0("K=",k)]] <- round(kmeansProbaPost(clusters=km_cluster[[paste0("K=", k)]],
+      #                                                 tcounts=tcounts$tcounts), arg.user$digits)
+      all.results[[paste0("K=",k)]] <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=k)
+      all.results[[paste0("K=",k)]][cbind(seq_len(length(km_cluster[[paste0("K=", k)]])),
+                                          km_cluster[[paste0("K=", k)]])] <- 1
+      colnames(all.results[[paste0("K=",k)]]) <- paste0("Cluster_", seq_len(ncol(all.results[[paste0("K=",k)]])))
+      rownames(all.results[[paste0("K=",k)]]) <- rownames(tcounts$tcounts)
     }
 
     run <- coseqResults(as(select.results, "RangedSummarizedExperiment"), allResults=all.results)
@@ -436,47 +456,54 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="Normal", transf
 #' cl <- kmeans(x, 5)
 #' probaPost <- kmeansProbaPost(cl$cluster, x)
 #' head(probaPost)
-kmeansProbaPost <- function(clusters, tcounts) {
-
-  ## nombre de classe selectionne
-  K <- max(clusters)
-  ## initialisation pour les centres des classes
-  centers <- matrix(0, nrow=K, ncol=ncol(tcounts))
-  ## init pour la matrice des distances aux centres/inertie interdensite
-  dens <- matrix(0, nrow=nrow(tcounts), ncol=K)
+kmeansProbaPost <- function(clusters,tcounts)
+{
+  results <- clusters
+  K <- max(results)
+  centers <- matrix(0,nrow=K,ncol=ncol(tcounts))
+  dens <- matrix(0,nrow=nrow(tcounts),ncol=K)
   withinss <- c() ###initialisation pour les inerties inter
   size <- c() ### initialisation pour les tailles de classes
   atyp <- c() ### indices des classes a un element
-
-  ### calcul des centres et tailles des classes
-  for(k in 1:K) {
-    I <- which(clusters == k)
+  for(i in seq_len(K)) {
+    I <- which(results==i)
     size <- c(size,length(I))
-    if(length(I) > 1) {
-      centers[k,] <- colMeans(tcounts[I,])
-      var <- mean((t(t(tcounts[I,]) - colMeans(tcounts[I,])))^2)
-      withinss <- c(withinss, var)
-      dens[,k] <- length(I)* dmvnorm(tcounts,centers[k,],var/ncol(tcounts)*diag(ncol(tcounts)))
+    if(length(I)>1) {
+      centers[i,] <- colSums(tcounts[I,])/length(I)
+      var <- sum((tcounts[I,] - matrix(rep(colSums(tcounts[I,])/length(I),length(I)),
+                                       ncol=ncol(tcounts),byrow=TRUE))^2)/length(I)
+      withinss <- c(withinss,var)
+      dens[,i] <- 1/length(I)*exp(dmvnorm(tcounts,centers[i,], var/ncol(tcounts)*diag(ncol(tcounts)),
+                                          log=TRUE))
     }
-    ## For clusters containing only a single observation
-    if(length(I) == 1) {
-      centers[k,] <- tcounts[I,]
+    if(length(I)==1) {
+      centers[i,] <- tcounts[I,]
       var <- 0
-      dens[,k] <- rep(0,nrow(tcounts))
-      atyp <- c(atyp,k)
+      dens[,i] <- rep(0,nrow(tcounts))
+      atyp <- c(atyp,i)
     }
   }
-  tauik <- dens/matrix(rep(rowSums(dens),K), nrow=nrow(tcounts))
-  if(length(atyp)) {
-    for(kk in atyp) {
-      I <- which(clusters == kk) #### mettre une proba 1 aux elements seuls dans leur classe
-      tauik[I,kk] <- 1
+  # dens <- dens/rowSums(dens)
+  # epsilon <- 1e-10
+  # maxcut <- 1 - epsilon
+  # mincut <- epsilon
+  # dens <- apply(dens, 2, pmax, mincut)
+  # dens <- apply(dens, 2, pmin, maxcut)
+
+  tauik <- dens/matrix(rep(rowSums(dens),K),nrow=nrow(tcounts))
+  if(length(atyp)>0) {
+    for (i in atyp) {
+      I <- which(results==i)
+      tauik[I,i] <- 1
     }
   }
   rownames(tauik) <- rownames(tcounts)
   colnames(tauik) <- paste0("Cluster_", seq_len(K))
   return(tauik)
 }
+
+
+
 
 
 
@@ -628,7 +655,7 @@ clusterEntropy <- function(probaPost) {
 #' ## Run the K-means algorithm for logclr profiles for K = 2,..., 20
 #' run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
 #' model="kmeans")
-#' clusterInertia(tcounts(run_kmeans), clusters(run_kmeans))
+#' clusterInertia(profiles=tcounts(run_kmeans), clusters=clusters(run_kmeans))
 #'
 clusterInertia <- function(profiles, clusters) {
   inertia <- NULL

@@ -8,4 +8,4 @@ citEntry(entry   = "article",
          author  = personList(
            person(given="Andrea", family="Rau"),
 		   person(given="Cathy", family="Maugis-Rabusseau")),
-         textVersion = "Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for co-expression analayis of RNA-seq data. Briefings in Bioinformatics (to appear), doi: http://dx.doi.org/10.1101/065607.")
+         textVersion = "Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for co-expression analayis of RNA-seq data. Briefings in Bioinformatics, doi: http://dx.doi.org/10.1101/065607.")

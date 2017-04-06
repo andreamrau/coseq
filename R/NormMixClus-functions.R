@@ -86,17 +86,25 @@ NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bppar
       }
       ## In the case where parallelization IS used
     } else if(parallel) {
-      tmp <- bplapply(remainingK, function(ii) {
-        if(arg.user$verbose == TRUE) {
+      tmp <- bplapply(remainingK, function(ii, N_y_profiles, N_alg.type, N_init.runs,
+                                           N_init.type, N_init.iter, N_iter, N_cutoff,
+                                           N_GaussianModel, N_digits, N_verbose) {
+        if(N_verbose == TRUE) {
           cat("Running K =", ii, "...\n")
         }
-        res <- suppressWarnings(NormMixClusK(y_profiles=y_profiles, K=as.numeric(ii),
-                                              alg.type=arg.user$alg.type, init.runs=arg.user$init.runs,
-                                              init.type=arg.user$init.type, init.iter=arg.user$init.iter,
-                                              iter=arg.user$iter, cutoff=arg.user$cutoff,
-                                              GaussianModel=arg.user$GaussianModel, digits=arg.user$digits))
+#        library(coseq)
+        res <- suppressWarnings(NormMixClusK(y_profiles=N_y_profiles, K=as.numeric(ii),
+                                              alg.type=N_alg.type, init.runs=N_init.runs,
+                                              init.type=N_init.type, init.iter=N_init.iter,
+                                              iter=N_iter, cutoff=N_cutoff,
+                                              GaussianModel=N_GaussianModel, digits=N_digits))
 
-        return(res)}, BPPARAM=BPPARAM)
+        return(res)},
+        N_y_profiles=y_profiles, N_alg.type=arg.user$alg.type, N_init.runs = arg.user$init.runs,
+        N_init.type=arg.user$init.type, N_init.iter=arg.user$init.iter, N_iter=arg.user$iter,
+        N_cutoff=arg.user$cutoff, N_GaussianModel=arg.user$GaussianModel, N_digits=arg.user$digits,
+        N_verbose=arg.user$verbose,
+        BPPARAM=BPPARAM)
       if(!sum(unlist(lapply(tmp, nrow)))) {
         stop(paste("All models of form", arg.user$GaussianModel, "resulted in estimation errors.
 This is likely due to singular covariance matrices when this form of Gaussian mixture is used.

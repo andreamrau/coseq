@@ -2,7 +2,7 @@
 #'
 #' This is the primary user interface for the \code{coseq} package.
 #' Generic S4 methods are implemented to perform co-expression or co-abudance analysis of
-#' high-throughput sequencing data, with or without data transformation, using mixture models.
+#' high-throughput sequencing data, with or without data transformation, using K-means or mixture models.
 #' The supported classes are \code{matrix}, \code{data.frame}, and \code{DESeqDataSet}.
 #' The output of \code{coseq} is an S4 object of class \code{coseqResults}.
 #'
@@ -35,8 +35,9 @@
 #' @importFrom stats p.adjust
 setMethod("coseq",
           signature=signature(object="matrix"),
-          definition=function(object, K, subset=NULL, model="Normal", transformation="none",
-                              normFactors="TMM", meanFilterCutoff=NULL, modelChoice="ICL",
+          definition=function(object, K, subset=NULL, model="kmeans", transformation="logclr",
+                              normFactors="TMM", meanFilterCutoff=NULL,
+                              modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
                               parallel=FALSE,  BPPARAM=bpparam(), ...)
           {
             y <- object
@@ -85,8 +86,9 @@ setMethod("coseq",
 #' @rdname coseq
 #' @export
 setMethod("coseq", signature=signature(object="data.frame"),
-          definition=function(object, K, subset=NULL, model="Normal", transformation="none",
-                              normFactors="TMM", meanFilterCutoff=NULL, modelChoice="ICL",
+          definition=function(object, K, subset=NULL, model="kmeans", transformation="logclr",
+                              normFactors="TMM", meanFilterCutoff=NULL,
+                              modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
                               parallel=FALSE,  BPPARAM=bpparam(), ...)
           {
             y <- as.matrix(object)
@@ -104,15 +106,16 @@ setMethod("coseq", signature=signature(object="data.frame"),
 #' @importMethodsFrom DESeq2 counts sizeFactors
 #' @importFrom DESeq2 results
 setMethod("coseq", signature=signature(object="DESeqDataSet"),
-          definition=function(object, K, model="Normal", transformation="none",
-                              normFactors="TMM", meanFilterCutoff=NULL, modelChoice="ICL",
-                              parallel=FALSE,  BPPARAM=bpparam(), ...)
+          definition=function(object, K, model="kmeans", transformation="logclr",
+                              normFactors="TMM", meanFilterCutoff=NULL,
+                              modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
+                              parallel=FALSE, BPPARAM=bpparam(), ...)
           {
             ## Parse ellipsis function separately for DESeq and coseq
             dots <- dots_DESeq <- dots_coseq <- list(...)
             DESeq_argindex <- setdiff(names(dots_DESeq), c("alpha"))
             coseq_argindex <-
-              setdiff(names(dots_coseq), c("conds", "model", "transformation", "geneIDs",
+              setdiff(names(dots_coseq), c("conds", "geneIDs",
                                            "parallel", "BPPARAM", "alg.type", "init.runs",
                                            "init.type", "GaussianModel", "init.iter",
                                            "cutoff", "verbose", "digits", "fixed.lambda",
@@ -133,11 +136,14 @@ setMethod("coseq", signature=signature(object="DESeqDataSet"),
             cat("****************************************\n")
             meanFilterCutoff <- NULL
 
-            run <- do.call(coseqRun, list(y=count_matrix, K=K, subset=subset.index,
+            run <- do.call(coseqRun, list(y=count_matrix, K=K, subset=subset.index, model=model,
+                                          transformation=transformation,
                                           meanFilterCutoff=meanFilterCutoff, normFactors=normFactors, dots_coseq))
             return(run)
 
           })
+
+
 
 
 

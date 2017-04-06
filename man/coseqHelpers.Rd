@@ -134,7 +134,8 @@ countmat <- countmat[which(rowSums(countmat) > 0),]
 conds <- rep(c("A","B","C","D"), each=2)
 
 ## Run the Normal mixture model for K = 2,3,4
-run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin")
+run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin",
+                    model="Normal")
 run_arcsin
 
 ## Plot and summarize results
@@ -145,7 +146,8 @@ summary(run_arcsin)
 ARI <- compareARI(run_arcsin, plot=FALSE)
 
 ## Compare ICL values for models with arcsin and logit transformations
-run_logit <- coseq(object=countmat, K=2:4, iter=5, transformation="logit")
+run_logit <- coseq(object=countmat, K=2:4, iter=5, transformation="logit",
+                   model="Normal")
 compareICL(list(run_arcsin, run_logit))
 
 ## Use accessor functions to explore results

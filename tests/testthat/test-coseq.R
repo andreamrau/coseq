@@ -20,7 +20,7 @@ test_that("model, transformation, normFactors, ICL", {
 })
 
 coseq_res <- coseq(obj, K=2:4, norm="none", GaussianModel="Gaussian_pk_Lk_I",
-                   verbose=FALSE)
+                   verbose=FALSE, model="Normal", transformation="none")
 
 test_that("coseq output", {
   expect_true(length(clusters(coseq_res)) == nrow(obj))
@@ -49,7 +49,7 @@ test_that("compareARI", {
 context("general function tests")
 test_that("compareICL, clusterEntropy, transformRNAseq", {
   coseq_res2 <- coseq(obj, K=2:4, transformation="logMedianRef",
-                      GaussianModel="Gaussian_pk_Lk_I",
+                      GaussianModel="Gaussian_pk_Lk_I", model="Normal",
                      verbose=FALSE, norm="none")
   expect_error(compareICL(list(coseq_res, coseq_res2)))
   expect_equal(length(clusterEntropy(assay(coseq_res))),

@@ -86,13 +86,14 @@ setMethod("plot", signature=signature(x="coseqResults"),
             object <- x
             if(is.null(y_profiles)) y_profiles <- profiles(object)
             if("logLike" %in% graphs | "ICL" %in% graphs) {
-              if(model(object) != "kmeans")
+              if(model(object) != "kmeans") {
                 globalPlots <- coseqGlobalPlots(object, K=K, threshold=threshold, conds=conds,
-                               average_over_conds=average_over_conds, graphs=graphs,
-                               order=order, profiles_order=profiles_order, n_row=n_row, n_col=n_col, ...)
-              graph_objects <- c(graph_objects, globalPlots)
+                                                average_over_conds=average_over_conds, graphs=graphs,
+                                                order=order, profiles_order=profiles_order, n_row=n_row, n_col=n_col, ...)
+                graph_objects <- c(graph_objects, globalPlots)
+              }
               if(model(object) == "kmeans")
-                 print("Log-likelihood and ICL plots are not available for coseqResults objects using K-means.")
+                 print("Note: Log-likelihood and ICL plots are not available for coseqResults objects using K-means.")
             }
 
             ## Model-specific plots
@@ -114,6 +115,11 @@ setMethod("plot", signature=signature(x="coseqResults"),
                 }
               }
 
+              if(model(object) == "kmeans") {
+                probacalc <- kmeansProbaPost(clusters=apply(xx, 1, which.max),
+                                             tcounts=as.matrix(as.data.frame(tcounts(object))))
+                xx <- xx * probacalc
+              }
               modelPlots <- coseqModelPlots(probaPost=xx, y_profiles=y_profiles, K=NULL, threshold=threshold, conds=conds,
                    average_over_conds=average_over_conds,
                    graphs=graphs, order = order, alpha=arg.user$alpha,
@@ -145,7 +151,7 @@ coseqGlobalPlots <- function(object, graphs=c("logLike", "ICL"), ...) {
     gg <- ggplot(pl_data, aes_string(x="Cluster", y="logLike")) +
       geom_point() + geom_line() +
       scale_y_continuous(name = ifelse(is.null(arg.user$ylab), "Log-likelihood", arg.user$ylab))
-    print(gg)
+#    print(gg)
     graph_objects$logLike <- gg
   }
 
@@ -153,7 +159,7 @@ coseqGlobalPlots <- function(object, graphs=c("logLike", "ICL"), ...) {
   if("ICL" %in% graphs) {
     gg <- ggplot(pl_data, aes_string(x="Cluster", y="ICL")) +
       geom_point() + geom_line()
-    print(gg)
+#    print(gg)
     graph_objects$ICL <- gg
   }
   return(graph_objects)
@@ -279,7 +285,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
         if(!is.null(arg.user$facet_labels))
           g1 <- g1 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
       }
-      print(g1)
+ #     print(g1)
       graph_objects$profiles <- g1
     }
 
@@ -307,7 +313,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
           scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
       })
       g2 <- marrangeGrob(g2_list, n_col, n_row)
-      print(g2)
+ #     print(g2)
       graph_objects$profiles <- g2
     }
   }
@@ -357,7 +363,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
         if(!is.null(arg.user$facet_labels))
           g3 <- g3 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
       }
-      print(g3)
+ #     print(g3)
       graph_objects$boxplots <- g3
     }
     ## Print on different pages
@@ -387,7 +393,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
           scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
       })
       g4 <- marrangeGrob(g4_list, n_col, n_row)
-      print(g4)
+ #     print(g4)
       graph_objects$boxplots <- g4
     }
   }
@@ -417,7 +423,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
     gg <- ggplot(pl_data, aes_string(x="labels", y="proba")) +
         geom_boxplot() +  scale_x_discrete(name="Cluster") +
         scale_y_continuous(name="Max conditional probability")
-    print(gg)
+ #   print(gg)
     graph_objects$probapost_boxplots <- gg
   }
 
@@ -445,7 +451,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                         name="Max\nconditional\nprobability") +
       scale_x_discrete(name="Cluster") +
       scale_y_continuous(name="Number of observations")
-    print(gg)
+ #   print(gg)
     graph_objects$probapost_barplots <- gg
   }
 
@@ -458,7 +464,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
     gg <- ggplot(pl_data_tmp, aes_string(x="proba")) +
       geom_histogram(binwidth = 0.01) +
       scale_x_continuous(name = "Maximum conditional probability") + theme_bw()
-    print(gg)
+#    print(gg)
     graph_objects$probapost_histogram <- gg
   }
   return(graph_objects)

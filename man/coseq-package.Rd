@@ -12,7 +12,7 @@ mixture models or a K-means algorithm, and model selection criteria
 }
 \details{
 \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-\tab 0.99.9\cr Date: \tab 2017-03-27\cr License: \tab GPL (>=3)\cr LazyLoad:
+\tab 0.99.10\cr Date: \tab 2017-04-06\cr License: \tab GPL (>=3)\cr LazyLoad:
 \tab yes\cr }
 }
 \examples{
@@ -23,7 +23,8 @@ countmat <- countmat[which(rowSums(countmat) > 0),]
 conds <- rep(c("A","B","C","D"), each=2)
 
 ## Run the Normal mixture model for K = 2,3,4
-run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin")
+run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin",
+                    model="Normal")
 run_arcsin
 
 ## Plot and summarize results
@@ -34,7 +35,8 @@ summary(run_arcsin)
 ARI <- compareARI(run_arcsin, plot=FALSE)
 
 ## Compare ICL values for models with arcsin and logit transformations
-run_logit <- coseq(object=countmat, K=2:4, iter=5, transformation="logit")
+run_logit <- coseq(object=countmat, K=2:4, iter=5, transformation="logit",
+                   model="Normal")
 compareICL(list(run_arcsin, run_logit))
 
 ## Use accessor functions to explore results
@@ -53,11 +55,15 @@ run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
 run_kmeans
 }
 \author{
-Andrea Rau, Cathy Maugis-Rabusseau
+Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 
 Maintainer: Andrea Rau <\url{andrea.rau@jouy.inra.fr}>
 }
 \references{
+Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering
+transformed compositional data using K-means, with applications in gene
+expression and bike sharing system data. Manuscript in preparation.
+
 Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for
 co-expression analayis of RNA-seq data. bioRxiv, doi: http://dx.doi.org/10.1101/065607.
 

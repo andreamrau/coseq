@@ -6,16 +6,20 @@
 #' (to choose an appropriate number of clusters) are provided.
 #'
 #' \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-#' \tab 0.99.9\cr Date: \tab 2017-03-27\cr License: \tab GPL (>=3)\cr LazyLoad:
+#' \tab 0.99.10\cr Date: \tab 2017-04-06\cr License: \tab GPL (>=3)\cr LazyLoad:
 #' \tab yes\cr }
 #'
 #' @name coseq-package
 #' @aliases coseq-package
 #' @docType package
-#' @author Andrea Rau, Cathy Maugis-Rabusseau
+#' @author Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 #'
 #' Maintainer: Andrea Rau <\url{andrea.rau@@jouy.inra.fr}>
 #' @references
+#' Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering
+#' transformed compositional data using K-means, with applications in gene
+#' expression and bike sharing system data. Manuscript in preparation.
+#'
 #' Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for
 #' co-expression analayis of RNA-seq data. bioRxiv, doi: http://dx.doi.org/10.1101/065607.
 #'

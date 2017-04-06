@@ -11,17 +11,20 @@
 \usage{
 coseq(object, ...)
 
-\S4method{coseq}{matrix}(object, K, subset = NULL, model = "Normal",
-  transformation = "none", normFactors = "TMM", meanFilterCutoff = NULL,
-  modelChoice = "ICL", parallel = FALSE, BPPARAM = bpparam(), ...)
+\S4method{coseq}{matrix}(object, K, subset = NULL, model = "kmeans",
+  transformation = "logclr", normFactors = "TMM", meanFilterCutoff = NULL,
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
+  BPPARAM = bpparam(), ...)
 
-\S4method{coseq}{data.frame}(object, K, subset = NULL, model = "Normal",
-  transformation = "none", normFactors = "TMM", meanFilterCutoff = NULL,
-  modelChoice = "ICL", parallel = FALSE, BPPARAM = bpparam(), ...)
+\S4method{coseq}{data.frame}(object, K, subset = NULL, model = "kmeans",
+  transformation = "logclr", normFactors = "TMM", meanFilterCutoff = NULL,
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
+  BPPARAM = bpparam(), ...)
 
-\S4method{coseq}{DESeqDataSet}(object, K, model = "Normal",
-  transformation = "none", normFactors = "TMM", meanFilterCutoff = NULL,
-  modelChoice = "ICL", parallel = FALSE, BPPARAM = bpparam(), ...)
+\S4method{coseq}{DESeqDataSet}(object, K, model = "kmeans",
+  transformation = "logclr", normFactors = "TMM", meanFilterCutoff = NULL,
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
+  BPPARAM = bpparam(), ...)
 }
 \arguments{
 \item{object}{Data to be clustered. May be provided as a y (\emph{n} x \emph{q})
@@ -85,7 +88,7 @@ clusters, and form of Gaussian model} for each model are stored as metadata.
 \description{
 This is the primary user interface for the \code{coseq} package.
 Generic S4 methods are implemented to perform co-expression or co-abudance analysis of
-high-throughput sequencing data, with or without data transformation, using mixture models.
+high-throughput sequencing data, with or without data transformation, using K-means or mixture models.
 The supported classes are \code{matrix}, \code{data.frame}, and \code{DESeqDataSet}.
 The output of \code{coseq} is an S4 object of class \code{coseqResults}.
 }
@@ -97,7 +100,8 @@ countmat <- countmat[which(rowSums(countmat) > 0),]
 conds <- rep(c("A","B","C","D"), each=2)
 
 ## Run the Normal mixture model for K = 2,3,4
-run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin")
+run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin",
+                    model="Normal")
 run_arcsin
 
 ## Plot and summarize results
@@ -108,7 +112,8 @@ summary(run_arcsin)
 ARI <- compareARI(run_arcsin, plot=FALSE)
 
 ## Compare ICL values for models with arcsin and logit transformations
-run_logit <- coseq(object=countmat, K=2:4, iter=5, transformation="logit")
+run_logit <- coseq(object=countmat, K=2:4, iter=5, transformation="logit",
+                   model="Normal")
 compareICL(list(run_arcsin, run_logit))
 
 ## Use accessor functions to explore results

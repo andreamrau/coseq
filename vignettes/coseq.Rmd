@@ -15,11 +15,13 @@ vignette: >
 *coseq* is a package to perform clustering analysis of sequencing data 
 (e.g., co-expression analysis 
 of RNA-seq data), using transformed profiles rather than the raw counts directly. The package implements mixture models and the K-means algorithm, performs 
-parameter estimation using an expectation-maximization algorithm, and performs model selection using either the Integrated Completed Likelihood (ICL) criterion or the slope heuristics approach. The methods implemented in this package are described in detail in the following two publications:
+parameter estimation using an expectation-maximization algorithm, and performs model selection using either the Integrated Completed Likelihood (ICL) criterion or the slope heuristics approach. The methods implemented in this package are described in detail in the following three publications:
 
 * Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for RNA-seq co-expression analysis. *Briefings in Bioinformatics* (to appear), doi: http://dx.doi.org/10.1101/065607.
 
 * Rau, A., Maugis-Rabusseau, C., Martin-Magniette, M.-L., Celeux, G. (2015) Co-expression analysis of high-throughput transcriptome sequencing data with Poisson mixture models. *Bioinformatics*, 31(9): 1420-1427. [link](https://www.ncbi.nlm.nih.gov/pubmed/25563332)
+
+* Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering transformed compositional data using K-means, with applications in gene expression and bike sharing system data. Manuscript in preparation.
 
 
 Below, we provide a quick-start guide using a small subset of RNA-seq data to illustrate
@@ -74,15 +76,16 @@ Because the number of clusters $K$ is not known a priori, we fit a collection of
 The collection of co-expression models for the arcsine-transformed and logit-transformed profiles may be obtained as follows:
 
 ```{r}
-runArcsin <- coseq(counts, K=2:25, transformation="arcsin", meanFilterCutoff=200)
-runLogit <- coseq(counts, K=2:25, transformation="logit", meanFilterCutoff=200)
+runArcsin <- coseq(counts, K=2:25, model="Normal", transformation="arcsin", meanFilterCutoff=200)
+runLogit <- coseq(counts, K=2:25, model="Normal", transformation="logit", meanFilterCutoff=200, 
+                  verbose=FALSE)
 ```
 
 Note that if desired, parallel execution using [BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html) can be specified via the `parallel` argument:
 
 ```{r,eval=FALSE}
 runArcsin <- coseq(counts, K=2:25, transformation="arcsin", meanFilterCutoff=200,
-                   parallel=TRUE)
+                   parallel=TRUE, model="Normal")
 ```
 
 In both cases, the resulting output of a call to `coseq` is an S4 object of class `coseqResults`.
@@ -192,23 +195,24 @@ names(fullres)
 
 In many cases, it is of interest to run a co-expression analysis on the subset of genes identified as differentially expressed in a prior analysis. To facilitate this, `coseq` may be directly inserted into a *DESeq2* analysis pipeline as follows:
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(DESeq2)
 dds <- DESeqDataSetFromMatrix(counts, DataFrame(group=factor(conds)), ~group)
 dds <- DESeq(dds, test="LRT", reduced = ~1)
 res <- results(dds)
+summary(res)
 
 ## By default, alpha = 0.10
-run <- coseq(dds, K=2:5)
+run <- coseq(dds, K=2:15, verbose=FALSE)
 
 ## The following two lines provide identical results
-run <- coseq(dds, K=2:5, alpha=0.05)
-run <- coseq(dds, K=2:5, subset=results(dds, alpha=0.05))
+run <- coseq(dds, K=2:15, alpha=0.05)
+run <- coseq(dds, K=2:15, subset=results(dds, alpha=0.05))
 ```
 
 A co-expression analysis following the *edgeR* analysis pipeline may be done in a similar way, depending on whether the quasi-likelihood or likelihood ratio test is used:
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(edgeR)
 y <- DGEList(counts=counts, group=factor(conds))
 y <- calcNormFactors(y)
@@ -223,7 +227,7 @@ qlf <- glmQLFTest(fit, coef=2)
 fit <- glmFit(y,design)
 lrt <- glmLRT(fit,coef=2)
 
-run <- coseq(counts, K=2:5, subset=lrt, alpha=0.1)
-run <- coseq(counts, K=2:5, subset=qlf, alpha=0.1)
+run <- coseq(counts, K=2:15, subset=lrt, alpha=0.1)
+run <- coseq(counts, K=2:15, subset=qlf, alpha=0.1)
 ```
 

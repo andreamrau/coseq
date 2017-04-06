@@ -4,9 +4,10 @@
 \alias{coseqRun}
 \title{Co-expression analysis}
 \usage{
-coseqRun(y, K, conds = NULL, normFactors = "TMM", model = "Normal",
-  transformation = "arcsin", subset = NULL, meanFilterCutoff = 50,
-  modelChoice = "ICL", parallel = FALSE, BPPARAM = bpparam(), ...)
+coseqRun(y, K, conds = NULL, normFactors = "TMM", model = "kmeans",
+  transformation = "logclr", subset = NULL, meanFilterCutoff = 50,
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
+  BPPARAM = bpparam(), ...)
 }
 \arguments{
 \item{y}{(\emph{n} x \emph{q}) matrix of observed counts for \emph{n}
@@ -83,8 +84,8 @@ conds <- rep(c("A","B","C","D"), each=2)
 
 ## Run the Normal mixture model for K = 2,3,4
 ## The following are equivalent:
-run <- coseqRun(y=countmat, K=2:4, iter=5, transformation="arcsin")
-run <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin")
+run <- coseqRun(y=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")
+run <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")
 
 }
 \author{

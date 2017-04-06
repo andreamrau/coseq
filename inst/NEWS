@@ -2,7 +2,7 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
-		coseq VERSION 0.99.8 - 0.99.9
+		coseq VERSION 0.99.8 - 0.99.10
 
 -- Add in K-means algorithm functionality and conditional probability
 calculation.
