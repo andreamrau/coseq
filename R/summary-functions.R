@@ -37,8 +37,13 @@
 #' @author Andrea Rau
 #' @seealso \code{\link{coseq}}
 #' @references
-#' Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for
-#' co-expression analayis of RNA-seq data. bioRxiv, doi: http://dx.doi.org/10.1101/065607.
+#' Rau, A. and Maugis-Rabusseau, C. (2017) Transformation and model choice for
+#' co-expression analayis of RNA-seq data. Briefings in Bioinformatics,
+#' doi: http://dx.doi.org/10.1101/065607.
+#'
+#' Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering
+#' transformed compositional data using K-means, with applications in gene
+#' expression and bicycle sharing system data. arXiv:1704.06150.
 #'
 #' @return Summary of the \code{coseqResults} object.
 #' @keywords methods

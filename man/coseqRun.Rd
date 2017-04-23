@@ -82,7 +82,12 @@ countmat <- matrix(runif(300*4, min=0, max=500), nrow=300, ncol=4)
 countmat <- countmat[which(rowSums(countmat) > 0),]
 conds <- rep(c("A","B","C","D"), each=2)
 
-## Run the Normal mixture model for K = 2,3,4
+## Run the K-means for K = 2,3,4 with logCLR transformation
+## The following are equivalent:
+run <- coseqRun(y=countmat, K=2:15)
+run <- coseq(object=countmat, K=2:15, transformation="logclr", model="kmeans")
+
+## Run the Normal mixture model for K = 2,3,4 with arcsine transformation
 ## The following are equivalent:
 run <- coseqRun(y=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")
 run <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")

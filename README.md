@@ -6,16 +6,26 @@ Co-expression analysis for expression profiles arising from high-throughput sequ
 are clustered using adapted transformations and mixture models or a K-means algorithm, and model selection criteria
 (to choose an appropriate number of clusters) are provided.
 
-A typical call to coseq to fit a Gaussian mixture model on arcsin- or logit-transformed normalized
+A typical call to coseq to apply the K-means algorithm to logCLR-transformed normalized
 RNA-seq profiles takes the following form:
 ```
 library(coseq)
+## The following two lines are equivalent:
+run_kmeans <- coseq(counts, K=2:10)
+run_kmeans <- coseq(counts, K=2:10, model="kmeans", transformation="logclr")
+```
+where `counts` represents a (n×q) matrix or data frame of read counts for n genes in q samples
+and `K=2:10` provides the desired range of numbers of clusters (here, 2 to 10). 
+
+A typical call to coseq to fit a Gaussian mixture model on arcsin- or logit-transformed normalized
+RNA-seq profiles takes the following form:
+```
 run_arcsin <- coseq(counts, K=2:10, model="Normal", transformation="arcsin")
 run_logit <- coseq(counts, K=2:10, model="Normal", transformation="logit")
 ```
-where `counts` represents a (n×q) matrix or data frame of read counts for n genes in q samples
-and `K=2:10` provides the desired range of numbers of clusters (here, 2 to 10). We note that
-this function directly calls the [Rmixmod](https://cran.r-project.org/web/packages/Rmixmod/index.html) R package to fit Gaussian mixture models. 
+We note that this function directly calls the [Rmixmod](https://cran.r-project.org/web/packages/Rmixmod/index.html) 
+R package to fit Gaussian mixture models. 
+
 The output of the `coseq` function is an
 S4 object of class `coseqResults` on which standard `plot` and `summary` functions can be directly applied; the former
 uses functionalities from the [ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html) package. The option of parallelization
@@ -23,8 +33,12 @@ via the [BiocParallel](https://bioconductor.org/packages/release/bioc/html/BiocP
 
 ### Reference
 
-Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for co-expression analayis of RNA-seq data. 
-*Briefings in Bioinformatics* (to appear), doi: http://dx.doi.org/10.1101/065607.
+Rau, A. and Maugis-Rabusseau, C. (2017) Transformation and model choice for co-expression analayis of RNA-seq data. 
+*Briefings in Bioinformatics*, doi: http://dx.doi.org/10.1101/065607.
+
+Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering transformed compositional data using K-means, 
+with applications in gene expression and bicycle sharing system data. [arXiv:1704.06150](https://arxiv.org/abs/1704.06150).
+
 
 ### License
 

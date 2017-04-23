@@ -50,6 +50,8 @@ conds <- rep(c("A","B","C","D"), each=2)
 arcsin <- transformRNAseq(countmat, normFactors="TMM", transformation="arcsin")$tcounts
 ## Logit transformation, TMM normalization
 logit <- transformRNAseq(countmat, normFactors="TMM", transformation="logit")$tcounts
+## logCLR transformation, TMM normalization
+logclr <- transformRNAseq(countmat, normFactors="TMM", transformation="logclr")$tcounts
 
 }
 

@@ -70,7 +70,12 @@
 #' countmat <- countmat[which(rowSums(countmat) > 0),]
 #' conds <- rep(c("A","B","C","D"), each=2)
 #'
-#' ## Run the Normal mixture model for K = 2,3,4
+#' ## Run the K-means for K = 2,3,4 with logCLR transformation
+#' ## The following are equivalent:
+#' run <- coseqRun(y=countmat, K=2:15)
+#' run <- coseq(object=countmat, K=2:15, transformation="logclr", model="kmeans")
+#'
+#' ## Run the Normal mixture model for K = 2,3,4 with arcsine transformation
 #' ## The following are equivalent:
 #' run <- coseqRun(y=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")
 #' run <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin", model="Normal")
@@ -350,13 +355,18 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
     tot_withinss <- c() ## Initialisation pour l'inertie intra
     names(km_cluster) <- paste0("K=", K)
 
+    Kerr <- c()
     if(!parallel) {
       for(k in K) {
         if(arg.user$verbose) cat("Running K =", k, "...\n")
-        km <- kmeans(tcounts$tcounts, centers=k, iter.max=arg.user$iter.max, nstart=arg.user$nstart,
-                     algorithm=arg.user$algorithm, trace=arg.user$trace)
+        km <- suppressWarnings(kmeans(tcounts$tcounts, centers=k,
+                                      iter.max=arg.user$iter.max,
+                                      nstart=arg.user$nstart,
+                                      algorithm=arg.user$algorithm,
+                                      trace=arg.user$trace))
         km_cluster[[paste0("K=",k)]] <- km$cluster
         tot_withinss <- c(tot_withinss, km$tot.withinss)
+        if(!is.null(km$ifault)) Kerr <- c(Kerr, k)
       }
       names(tot_withinss) <- paste0("K=", K)
     }
@@ -366,9 +376,11 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
       tmp <- bplapply(K, function(ii, km_tcounts, km_iter.max, km_nstart, km_algorithm,
                                   km_trace, km_verbose) {
         if(km_verbose) cat("Running K =", ii, "...\n")
-        km <- kmeans(km_tcounts, centers=as.numeric(ii), iter.max=km_iter.max,
-                     nstart=km_nstart,
-                    algorithm=km_algorithm, trace=km_trace)
+        km <- suppressWarnings(kmeans(km_tcounts, centers=as.numeric(ii),
+                                      iter.max=km_iter.max,
+                                      nstart=km_nstart,
+                                      algorithm=km_algorithm,
+                                      trace=km_trace))
         return(km)}, km_tcounts=tcounts$tcounts, km_iter.max=arg.user$iter.max,
         km_nstart=arg.user$nstart, km_algorithm=arg.user$algorithm, km_trace=arg.user$trace,
         km_verbose=arg.user$verbose, BPPARAM=BPPARAM)
@@ -378,6 +390,10 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
       tot_withinss <- unlist(lapply(tmp[na.omit(match(names(km_cluster), Kmods))],
                                     function(x) x$tot.withinss))
       names(tot_withinss) <- Kmods
+      Kerr <- unlist(lapply(tmp[na.omit(match(names(km_cluster), Kmods))],
+                                    function(x) ifelse(is.null(x$ifault),
+                                                       NA, length(x$size))))
+      Kerr <- Kerr[which(!is.na(Kerr))]
     }
 
     if(length(K) < 10)
@@ -391,7 +407,9 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
     pp_select <- matrix(0, nrow=nrow(tcounts$tcounts), ncol=as.numeric(DDSEextract(cap)[1]))
     pp_select[cbind(seq_len(length(cluster_select)), cluster_select)] <- 1
     colnames(pp_select) <- paste0("Cluster_", seq_len(ncol(pp_select)))
-    rownames(pp_select) <- rownames(tcounts$tcounts)
+#    rownames(pp_select) <- rownames(tcounts$tcounts)
+    rownames(pp_select) <- rownames(y_profiles)
+
 
     nbClust.all <- K
     names(nbClust.all) <- names(km_cluster)
@@ -401,7 +419,8 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
                                                          DDSE=paste0("K=", DDSEextract(cap)[1]),
                                                          Djump=paste0("K=", Djumpextract(cap)[1]),
                                                          capushe=cap,
-                                                         tot_withinss=tot_withinss))
+                                                         tot_withinss=tot_withinss,
+                                                         nbClusterError=Kerr))
 
     all.results <- vector("list", length(K))
     names(all.results) <- paste0("K=", K)
@@ -412,7 +431,8 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
       all.results[[paste0("K=",k)]][cbind(seq_len(length(km_cluster[[paste0("K=", k)]])),
                                           km_cluster[[paste0("K=", k)]])] <- 1
       colnames(all.results[[paste0("K=",k)]]) <- paste0("Cluster_", seq_len(ncol(all.results[[paste0("K=",k)]])))
-      rownames(all.results[[paste0("K=",k)]]) <- rownames(tcounts$tcounts)
+#      rownames(all.results[[paste0("K=",k)]]) <- rownames(tcounts$tcounts)
+      rownames(all.results[[paste0("K=",k)]]) <- rownames(y_profiles)
     }
 
     run <- coseqResults(as(select.results, "RangedSummarizedExperiment"), allResults=all.results)
@@ -426,6 +446,9 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
   all.results <- coseqFullResults(run)
   tcountsDF <- as(tcounts$tcounts, "DataFrame")
   y_profilesDF <- as(y_profiles, "DataFrame")
+
+  colnames(tcountsDF) <- colnames(y_profilesDF)
+  rownames(tcountsDF) <- rownames(y_profilesDF)
 
   RESULTS <- coseqResults(as(ICL.results, "RangedSummarizedExperiment"),
                           allResults=all.results,
@@ -745,6 +768,8 @@ matchContTable <- function(table_1, table_2){
 #' arcsin <- transformRNAseq(countmat, normFactors="TMM", transformation="arcsin")$tcounts
 #' ## Logit transformation, TMM normalization
 #' logit <- transformRNAseq(countmat, normFactors="TMM", transformation="logit")$tcounts
+#' ## logCLR transformation, TMM normalization
+#' logclr <- transformRNAseq(countmat, normFactors="TMM", transformation="logclr")$tcounts
 #'
 #' @importFrom edgeR calcNormFactors
 #' @importFrom edgeR cpm
@@ -908,6 +933,8 @@ transformRNAseq <- function(y, normFactors="TMM", transformation="arcsin",
     tcounts <- cpm(as.matrix(y), normalized.lib.sizes=TRUE, log=TRUE,
                    prior.count=0.25)
   }
+  rownames(tcounts) <- rownames(y)
+  colnames(tcounts) <- colnames(y)
   return(list(tcounts=tcounts, normCounts=normCounts, snorm=snorm, ellnorm=ellnorm))
 }
 

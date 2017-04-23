@@ -12,7 +12,7 @@ mixture models or a K-means algorithm, and model selection criteria
 }
 \details{
 \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-\tab 0.99.11\cr Date: \tab 2017-04-06\cr License: \tab GPL (>=3)\cr LazyLoad:
+\tab 0.99.12\cr Date: \tab 2017-04-21\cr License: \tab GPL (>=3)\cr LazyLoad:
 \tab yes\cr }
 }
 \examples{
@@ -62,10 +62,11 @@ Maintainer: Andrea Rau <\url{andrea.rau@jouy.inra.fr}>
 \references{
 Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering
 transformed compositional data using K-means, with applications in gene
-expression and bike sharing system data. Manuscript in preparation.
+expression and bicycle sharing system data. arXiv:1704.06150.
 
-Rau, A. and Maugis-Rabusseau, C. (2016) Transformation and model choice for
-co-expression analayis of RNA-seq data. bioRxiv, doi: http://dx.doi.org/10.1101/065607.
+Rau, A. and Maugis-Rabusseau, C. (2017) Transformation and model choice for
+co-expression analayis of RNA-seq data. Briefings in Bioinformatics,
+doi: http://dx.doi.org/10.1101/065607.
 
 Rau, A., Maugis-Rabusseau, C., Martin-Magniette, M.-L., Celeux,
 G. (2015) Co-expression analysis of high-throughput transcriptome sequencing

@@ -208,6 +208,7 @@ setMethod("clusters", signature(object="coseqResults"),
             if(!missing(K))
               pp <- coseqFullResults(object)[[paste0("K=", K)]]
             labels <- apply(pp, 1, which.max)
+            names(labels) <- rownames(pp)
             return(labels)
 })
 
