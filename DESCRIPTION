@@ -1,7 +1,7 @@
 Package: coseq
 Type: Package
 Title: Co-Expression Analysis of Sequencing Data
-Version: 1.1.1
+Version: 1.1.2
 Date: 2017-04-26
 Author: Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 Maintainer: Andrea Rau <andrea.rau@jouy.inra.fr>
