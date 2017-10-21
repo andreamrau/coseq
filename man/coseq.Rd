@@ -3,10 +3,13 @@
 \docType{methods}
 \name{coseq}
 \alias{coseq}
+\alias{coseq,matrix-method}
+\alias{coseq}
+\alias{coseq-methods}
+\alias{coseq,data.frame-method}
 \alias{coseq,DESeqDataSet-method}
 \alias{coseq,data.frame-method}
-\alias{coseq,matrix-method}
-\alias{coseq-methods}
+\alias{coseq,DESeqDataSet-method}
 \title{Co-expression or co-abudance analysis of high-throughput sequencing data}
 \usage{
 coseq(object, ...)
@@ -135,4 +138,3 @@ run_kmeans
 Andrea Rau
 }
 \keyword{methods}
-

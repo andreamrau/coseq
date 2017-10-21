@@ -2,12 +2,12 @@
 % Please edit documentation in R/plot-functions.R
 \docType{methods}
 \name{plot,coseqResults,ANY-method}
+\alias{plot,coseqResults,ANY-method}
+\alias{plot}
+\alias{plot-methods}
+\alias{plot,coseqResults-method}
 \alias{coseqGlobalPlots}
 \alias{coseqModelPlots}
-\alias{plot}
-\alias{plot,coseqResults,ANY-method}
-\alias{plot,coseqResults-method}
-\alias{plot-methods}
 \title{Visualize results from coseq clustering}
 \usage{
 \S4method{plot}{coseqResults,ANY}(x, y_profiles = NULL, K = NULL,
@@ -131,4 +131,3 @@ run_kmeans
 \author{
 Andrea Rau, Cathy Maugis-Rabusseau
 }
-

@@ -25,4 +25,3 @@ labels_2 <- sample(1:8, 1000, replace=TRUE)   ## K=8 clusters
 matchContTable(labels_1, labels_2)
 
 }
-

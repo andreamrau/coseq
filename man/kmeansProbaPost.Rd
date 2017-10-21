@@ -26,4 +26,3 @@ cl <- kmeans(x, 5)
 probaPost <- kmeansProbaPost(cl$cluster, x)
 head(probaPost)
 }
-

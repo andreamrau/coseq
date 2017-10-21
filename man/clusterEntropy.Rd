@@ -30,4 +30,3 @@ clusterEntropy(probaPost)
 \author{
 Cathy Maugis-Rabusseau
 }
-

@@ -2,8 +2,8 @@
 % Please edit documentation in R/summary-functions.R
 \docType{methods}
 \name{summary,coseqResults-method}
-\alias{summary}
 \alias{summary,coseqResults-method}
+\alias{summary}
 \alias{summary-methods}
 \title{Summarize results from coseq clustering}
 \usage{
@@ -86,9 +86,6 @@ run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
                     model="kmeans")
 run_kmeans
 }
-\author{
-Andrea Rau
-}
 \references{
 Rau, A. and Maugis-Rabusseau, C. (2017) Transformation and model choice for
 co-expression analayis of RNA-seq data. Briefings in Bioinformatics,
@@ -101,5 +98,7 @@ expression and bicycle sharing system data. arXiv:1704.06150.
 \seealso{
 \code{\link{coseq}}
 }
+\author{
+Andrea Rau
+}
 \keyword{methods}
-

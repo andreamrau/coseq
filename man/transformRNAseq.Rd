@@ -54,4 +54,3 @@ logit <- transformRNAseq(countmat, normFactors="TMM", transformation="logit")$tc
 logclr <- transformRNAseq(countmat, normFactors="TMM", transformation="logclr")$tcounts
 
 }
-

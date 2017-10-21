@@ -96,4 +96,3 @@ run <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin", model="Nor
 \author{
 Andrea Rau
 }
-

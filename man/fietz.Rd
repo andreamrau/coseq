@@ -32,4 +32,3 @@ matrix in progenitor self-renewal. Proceedings of the National Academy of Scienc
 109(29):11836-11841.
 }
 \keyword{datasets}
-

@@ -12,7 +12,7 @@ mixture models or a K-means algorithm, and model selection criteria
 }
 \details{
 \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-\tab 0.99.12\cr Date: \tab 2017-04-21\cr License: \tab GPL (>=3)\cr LazyLoad:
+\tab 1.1.3\cr Date: \tab 2017-10-20\cr License: \tab GPL (>=3)\cr LazyLoad:
 \tab yes\cr }
 }
 \examples{
@@ -54,11 +54,6 @@ run_kmeans <- coseq(object=countmat, K=2:20, transformation="logclr",
                     model="kmeans")
 run_kmeans
 }
-\author{
-Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
-
-Maintainer: Andrea Rau <\url{andrea.rau@jouy.inra.fr}>
-}
 \references{
 Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering
 transformed compositional data using K-means, with applications in gene
@@ -78,6 +73,10 @@ Clustering high-throughput sequencing data with Poisson mixture models.
 Inria Research Report 7786. Available at
 \url{http://hal.inria.fr/inria-00638082}.
 }
+\author{
+Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
+
+Maintainer: Andrea Rau <\url{andrea.rau@jouy.inra.fr}>
+}
 \keyword{cluster}
 \keyword{models}
-

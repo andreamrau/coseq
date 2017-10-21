@@ -19,4 +19,3 @@ recent versions of coseq (>= 0.99.1)
 \description{
 Convert legacy coseq S3 class objects to coseqResults S4 class objects
 }
-

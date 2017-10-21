@@ -3,11 +3,14 @@
 \docType{methods}
 \name{compareARI}
 \alias{compareARI}
-\alias{compareARI,RangedSummarizedExperiment-method}
+\alias{compareARI}
+\alias{compareARI-methods}
 \alias{compareARI,coseqResults-method}
+\alias{compareARI,RangedSummarizedExperiment-method}
+\alias{compareARI,matrix-method}
 \alias{compareARI,data.frame-method}
 \alias{compareARI,matrix-method}
-\alias{compareARI-methods}
+\alias{compareARI,data.frame-method}
 \title{Pairwise comparisons of ARI values among a set of clustering partitions}
 \usage{
 compareARI(object, ...)
@@ -94,4 +97,3 @@ run_kmeans
 \author{
 Andrea Rau
 }
-

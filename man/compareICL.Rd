@@ -61,4 +61,3 @@ run_kmeans
 \author{
 Andrea Rau, Cathy Maugis-Rabusseau
 }
-

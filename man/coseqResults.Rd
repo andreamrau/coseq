@@ -2,8 +2,8 @@
 % Please edit documentation in R/aaa-AllClasses.R
 \docType{class}
 \name{coseqResults-class}
-\alias{coseqResults}
 \alias{coseqResults-class}
+\alias{coseqResults}
 \title{coseqResults object and constructor}
 \usage{
 coseqResults(SummarizedExperiment, allResults, model = NULL,
@@ -44,4 +44,3 @@ to allow other packages to write methods for results
 objects from the coseq package. It is used by \code{\link{coseqRun}}
 to wrap up the results table.
 }
-

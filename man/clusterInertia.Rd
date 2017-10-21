@@ -36,4 +36,3 @@ clusterInertia(profiles=tcounts(run_kmeans), clusters=clusters(run_kmeans))
 \author{
 Andrea Rau, Antoine Godichon-Baggioni
 }
-

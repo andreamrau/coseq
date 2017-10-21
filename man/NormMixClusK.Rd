@@ -82,4 +82,3 @@ param <- NormMixParam(run, y_profiles=profiles)
 \author{
 Cathy Maugis-Rabusseau, Andrea Rau
 }
-

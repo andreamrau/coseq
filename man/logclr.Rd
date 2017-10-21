@@ -15,4 +15,3 @@ logCLR-transformed profiles
 \description{
 Calculate the Log Centered Log Ratio (logCLR) transformation
 }
-
