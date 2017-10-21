@@ -486,6 +486,9 @@ compareARI.matrix <- function(object, parallel=FALSE, BPPARAM=bpparam(), plot=TR
   arg.user <- list(...)
   if(is.null(arg.user$digits)) arg.user$digits<-2
 
+  ## Double check that these are labels
+  if(!identical(abs(t(apply(x, 1, round))), x)) stop("compareARI expects labels to be positive integers")
+
   ## For class data.frame or matrix
   full_labels <- x
   if(!length(colnames(full_labels))) {

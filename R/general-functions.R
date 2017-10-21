@@ -86,6 +86,7 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
                       parallel=FALSE, BPPARAM=bpparam(), ...) {
 
   if(!is.null(subset)) y <- y[subset,]
+  if(!all.equal(round(abs(K)), K)) stop("K should be a vector of cluster numbers.")
   y_profiles <- transformRNAseq(y=y, normFactors=normFactors, transformation="profile",
                                 meanFilterCutoff=meanFilterCutoff, verbose=FALSE)$tcounts
 
