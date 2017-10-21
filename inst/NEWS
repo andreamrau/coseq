@@ -2,6 +2,11 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
+		coseq VERSION 1.1.3
+
+-- Corrected error causing failing test for compareARI function when a matrix 
+of non-discrete and/or non-positive values was provided.
+					
 		coseq VERSION 0.99.8 - 0.99.12
 
 -- Add Fietz et al. (2012) data to package
