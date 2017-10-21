@@ -83,3 +83,4 @@ test_that("plot and class construction", {
                                  colData=DataFrame(group=factor(c(1,1,2,2,2))))
   expect_error(coseqResults(newobj, allResults=list(1,2,3)))
 })
+
