@@ -1,10 +1,10 @@
 Package: coseq
 Type: Package
 Title: Co-Expression Analysis of Sequencing Data
-Version: 1.3.1
-Date: 2017-11-09
+Version: 1.3.2
+Date: 2017-11-16
 Author: Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
-Maintainer: Andrea Rau <andrea.rau@jouy.inra.fr>
+Maintainer: Andrea Rau <andrea.rau@inra.fr>
 Depends: R (>= 3.4.1), SummarizedExperiment, S4Vectors
 Imports: edgeR, DESeq2, capushe, Rmixmod, e1071, BiocParallel, ggplot2
         (>= 2.1.0), scales, HTSFilter, corrplot, HTSCluster (>= 2.0.8),

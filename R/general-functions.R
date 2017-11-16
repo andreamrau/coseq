@@ -4,7 +4,8 @@
 #' using mixture models. The output of \code{coseqRun} is an S4 object of class \code{coseqResults}.
 #'
 #' @param y (\emph{n} x \emph{q}) matrix of observed counts for \emph{n}
-#' observations and \emph{q} variables
+#' observations (genes) and \emph{q} variables (samples). In nearly all cases,
+#' \emph{n} > \emph{q}.
 #' @param K Number of clusters (a single value or a vector of values)
 #' @param conds Vector of length \emph{q} defining the condition (treatment
 #' group) for each variable (column) in \code{y}
@@ -89,7 +90,20 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
   if(!all.equal(round(abs(K)), K)) stop("K should be a vector of cluster numbers.")
   y_profiles <- transformRNAseq(y=y, normFactors=normFactors, transformation="profile",
                                 meanFilterCutoff=meanFilterCutoff, verbose=FALSE)$tcounts
+  ## Check how the data are set up
+  if(nrow(y) < ncol(y))
+    warning("The # of observations (rows) < the # of variables (columns) in your data.
 
+In most use cases of co-expression analysis with coseq, genes should be in the rows 
+and samples in the columns.
+
+Please double-check that your data are in the correct format.")
+  
+  ## Check the model used
+  if(model == "normal") model <- "Normal"
+  if(model == "poisson") model <- "Poisson"
+  if(model == "Kmeans") model <- "kmeans"
+  
   ## Parse ellipsis function
   providedArgs <- list(...)
   arg.user <- list(alg.type="EM", init.runs=50, init.type="small-em", init.iter=20,
@@ -781,6 +795,25 @@ matchContTable <- function(table_1, table_2){
 transformRNAseq <- function(y, normFactors="TMM", transformation="arcsin",
                              geneLength=NA, meanFilterCutoff=NULL, verbose=TRUE) {
 
+  ##################################
+  ## Add warning message if y looks like profiles
+  ##################################
+  if(min(y) < 0) 
+    warning("Your data contain negative values, but the transformRNAseq function expects counts.
+Are you sure you want to proceed?")
+  if(min(y) >= 0 & max(y) <= 1)
+    warning("Your data look like profiles, but the transformRNAseq function expects counts.
+Are you sure you want to proceed?
+            
+Note: if you have profiles and wish to apply the arcsin/logit/CLR/logCLR transformations,
+use one of the following instead.
+            
+arcsin <- asin(sqrt(profiles))
+logit <- log2(profiles / (1-profiles))
+CLR <- clr(profiles)
+logCLR <- logclr(profiles)
+")
+  
   ##################################
   ## Calculate normalization factors
   ##################################

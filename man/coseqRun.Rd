@@ -11,7 +11,8 @@ coseqRun(y, K, conds = NULL, normFactors = "TMM", model = "kmeans",
 }
 \arguments{
 \item{y}{(\emph{n} x \emph{q}) matrix of observed counts for \emph{n}
-observations and \emph{q} variables}
+observations (genes) and \emph{q} variables (samples). In nearly all cases,
+\emph{n} > \emph{q}.}
 
 \item{K}{Number of clusters (a single value or a vector of values)}
 
