@@ -60,7 +60,7 @@ upper quantile, \dQuote{\code{Med}} for median, \dQuote{\code{DESeq}} for
 the normalization method in the DESeq package, and \dQuote{\code{TMM}} for
 the TMM normalization method (Robinson and Oshlack, 2010). Can also be a
 vector (of length \emph{q}) containing pre-estimated library size estimates
-for each sample.}
+for each sample, or \dQuote{\code{none}} if no normalization is required.}
 
 \item{meanFilterCutoff}{Value used to filter low mean normalized counts if desired (by default,
 set to a value of 50)}

@@ -3,22 +3,24 @@ citHeader("To cite the R package 'coseq' in publications use:")
 citEntry(entry   = "article",
          title   = "Transformation and model choice for co-expression analysis of RNA-seq data",
 		 journal = "Briefings in Bioinformatics",
-         number  = "doi: http://dx.doi.org/10.1101/065607 ",
-         year    = "2017",
+         volume  = "19",
+         number  = "3",
+         pages   = "425-436",
+         year    = "2018",
          author  = personList(
            person(given="Andrea", family="Rau"),
 		   person(given="Cathy", family="Maugis-Rabusseau")),
-         textVersion = "Rau, A. and Maugis-Rabusseau, C. (2017) Transformation and model choice for co-expression analayis of RNA-seq data. Briefings in Bioinformatics, doi: http://dx.doi.org/10.1101/065607.")
+         textVersion = "Rau, A. and Maugis-Rabusseau, C. (2018) Transformation and model choice for co-expression analysis of RNA-seq data. Briefings in Bioinformatics, 19(3)-425-436.")
 		 
 citEntry(entry   = "article",
          title   = "Clustering transformed compositional data using K-means, 
            with applications in gene expression and bicycle sharing system data",
-		 journal = "arXiv",
-         number  = "arXiv:1704.06150",
-         year    = "2017",
+         journal = "Journal of Applied Statistics",
+         number  = "doi:10.1080/02664763.2018.1454894",
+         year    = "2018",
          author  = personList(
 		   person(given="Antoine", family="Godichon-Baggioni"),
 		   person(given="Cathy", family="Maugis-Rabusseau"),
            person(given="Andrea", family="Rau")),
-         textVersion = "Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering transformed compositional data using K-means, 
-         with applications in gene expression and bicycle sharing system data. arXiv:1704.06150.")
+         textVersion = "Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2018) Clustering transformed compositional data using K-means, 
+         with applications in gene expression and bicycle sharing system data. Journal of Applied Statistics, doi:10.1080/02664763.2018.1454894.")

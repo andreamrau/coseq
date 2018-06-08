@@ -17,11 +17,12 @@ vignette: >
 
 The methods implemented in this package are described in detail in the following three publications.
 
-* Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering transformed compositional data using *K*-means, with applications in gene expression and bicycle sharing system data.  [arXiv:1704.06150](https://arxiv.org/abs/1704.06150).
+* Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2018) Clustering transformed compositional data using K-means, 
+with applications in gene expression and bicycle sharing system data. *Journal of Applied Statistics*, doi:10.1080/02664763.2018.1454894.
 [Paper that introduced the use of the K-means algorithm for RNA-seq profiles after transformation
 via the centered log ratio (CLR) or log centered log ratio (logCLR) transformation.]
 
-* Rau, A. and Maugis-Rabusseau, C. (2017) Transformation and model choice for RNA-seq co-expression analysis. *Briefings in Bioinformatics*, doi: http://dx.doi.org/10.1101/065607.
+* Rau, A. and Maugis-Rabusseau, C. (2018) Transformation and model choice for co-expression analayis of RNA-seq data. *Briefings in Bioinformatics*, 19(3)-425-436.
 [Paper that introduced the idea of clustering profiles for RNA-seq co-expression, and suggested
 using Gaussian mixture models in conjunction with either the arcsine or logit transformation.]
 
@@ -30,7 +31,7 @@ using Gaussian mixture models in conjunction with either the arcsine or logit tr
 
 
 Below, we provide a quick-start guide using a subset of RNA-seq data to illustrate
-the functionalities of the *coseq* package. In this document, we focus on the methods described in Rau and Maugis-Rabusseau (2017) and Godichon-Baggioni et al. (2017). For more information about the method described in Rau et al. (2015), see the [HTSCluster](https://CRAN.R-project.org/package=HTSCluster) vignette.
+the functionalities of the *coseq* package. In this document, we focus on the methods described in Rau and Maugis-Rabusseau (2018) and Godichon-Baggioni et al. (2018). For more information about the method described in Rau et al. (2015), see the [HTSCluster](https://CRAN.R-project.org/package=HTSCluster) vignette.
 
 ## Quick start (tl;dr)
 A standard *coseq* analysis takes the following form, where `counts` represents a matrix or data.frame of gene-level counts arising from an RNA-seq experiment (of dimension *n* x *d* for *n* genes and *d* samples). Results, exported in the form of a `coseqResults` S4 object, can easily be examined using standard `summary` and `plot` functions (see below and the User's Guide for examples of plots that may be obtained):
@@ -55,6 +56,7 @@ Note that unless otherwise specified by the user, *coseq* uses the following def
 
 
 
+
 ## Co-expression analysis with *coseq*
 
 For the remainder of this vignette, we make use of the mouse neocortex RNA-seq data from [Fietz et al. (2012)](https://www.ncbi.nlm.nih.gov/pubmed/22753484) (available at https://perso.math.univ-toulouse.fr/maugis/mixstatseq/packages and as an ExpressionSet object called `fietz` in *coseq*). The aim in this study was to investigate the expansion of the neocortex in five embryonic (day 14.5) mice by analyzing the transcriptome of three regions: the ventricular zone (VZ), subventricular zone (SVZ) and cortical place (CP). 
@@ -75,7 +77,7 @@ conds <- pData(fietz)$tissue
 ## conds <- c(rep("CP",5),rep("SVZ",5),rep("VZ",5))
 ```
 
-The *coseq* package fits either a Gaussian mixture model (Rau and Maugis-Rabusseau, 2017) or uses the K-means algorithm (Godichon-Baggioni et al., 2017) to cluster transformed normalized expression profiles of RNA-seq data. Normalized expression profiles correspond to the proportion of normalized reads observed for gene *i* with respect to the total observed for gene *i* across all samples:
+The *coseq* package fits either a Gaussian mixture model (Rau and Maugis-Rabusseau, 2018) or uses the K-means algorithm (Godichon-Baggioni et al., 2018) to cluster transformed normalized expression profiles of RNA-seq data. Normalized expression profiles correspond to the proportion of normalized reads observed for gene *i* with respect to the total observed for gene *i* across all samples:
 $$
 p_{ij} = \frac{y_{ij}/s_{j} +1}{\sum_{j'} y_{ij'}/s_{j'} +1},
 $$ 
@@ -194,14 +196,14 @@ Next, a variety of plots may be explored using the `plot` function:
 
 * `probapost_histogram` (histogram of maximum conditional probabilities over all clusters).
 
-By default, all of these plots are produced simultaneously unless specific graphics are requested via the `graphs` argument. In addition, a variety of options are available to specify the number of graphs per row/column in a grid layout, whether profiles should be averaged over conditions, whether condition labels should be used, whether clusters should be ordered according to their similarity, etc. Note that the histogram of maximum conditional probabilities of cluster membership for all genes (`probapost_histogram`), and boxplots and barplots of maximum conditional probabilities of cluster membership for the genes assigned to each cluster (`probapost_boxplots`, `probapost_barplots`) help to evaluate the degree of certitude accorded by the model in assigning genes to clusters, as well as whether some clusters are attribued a greater degree of uncertainty than others.
+By default, all of these plots are produced simultaneously unless specific graphics are requested via the `graphs` argument. In addition, a variety of options are available to specify the number of graphs per row/column in a grid layout, whether profiles should be averaged or summed over conditions (`collapse_reps`), whether condition labels should be used, whether clusters should be ordered according to their similarity, etc. Note that the histogram of maximum conditional probabilities of cluster membership for all genes (`probapost_histogram`), and boxplots and barplots of maximum conditional probabilities of cluster membership for the genes assigned to each cluster (`probapost_boxplots`, `probapost_barplots`) help to evaluate the degree of certitude accorded by the model in assigning genes to clusters, as well as whether some clusters are attribued a greater degree of uncertainty than others.
 
 ```{r, fig.width=6, fig.height=4}
 ## To obtain all plots
 ## plot(runArcsin)
 plot(runArcsin, graphs="boxplots")
 plot(runArcsin, graphs="boxplots", conds=conds)
-plot(runArcsin, graphs="boxplots", conds=conds, average_over_conds=TRUE)
+plot(runArcsin, graphs="boxplots", conds=conds, collapse_reps = "sum")
 plot(runArcsin, graphs="profiles")
 
 plot(runArcsin, graphs="probapost_boxplots")
@@ -291,12 +293,13 @@ lrt <- glmLRT(fit,coef=2)
 run <- coseq(counts, K=2:15, subset=lrt, alpha=0.1)
 run <- coseq(counts, K=2:15, subset=qlf, alpha=0.1)
 ```
+In both cases, library size normalization factors included in the *DESeq2* or *edgeR* object are used for the subsequent *coseq* analysis.
 
 ## *coseq* FAQs
 
 1. Should I use the Gaussian mixture model (`model="Normal"`) or the K-means (`model="kmeans"`) approach for my co-expression analysis? And what about the Poisson mixture model?
 
-The Gaussian mixture model is more time-intensive but enables the estimation of per-cluster correlation structures among samples. The K-means algorithm has a much smaller computational cost, at the expense of assuming a diagonl per-cluster covariance structures. Generally speaking, we feel that the K-means approach is a good first approach to use, although this can be somewhat context-dependent. Finally, although we feel the Poisson mixture model was a good first approach for RNA-seq co-expression, we now recommend either the Gaussian mixture model or K-means approach instead.
+The Gaussian mixture model is more time-intensive but enables the estimation of per-cluster correlation structures among samples. The K-means algorithm has a much smaller computational cost, at the expense of assuming a diagonal per-cluster covariance structures. Generally speaking, we feel that the K-means approach is a good first approach to use, although this can be somewhat context-dependent. Finally, although we feel the Poisson mixture model was a good first approach for RNA-seq co-expression, we now recommend either the Gaussian mixture model or K-means approach instead.
 
 2. There are a lot of proposed transformations in the package. Which one should I use?
 
@@ -315,3 +318,13 @@ Use the `clusters(...)` command.
 5. How can I check whether all models converged?
 
 Look at the `nbClusterError` slot of the `coseqResults` metadata using `metadata(...)$nbClusterError` to examine the models that did not converge.
+
+
+6. Can I run `coseq` on normalized profiles that have already been pre-computed?
+
+Yes, you should just specify `normFactors = "none"` and `transformation = "none"` when using `coseq`.
+
+
+7. Does it matter if I have an unbalanced experimental design?
+
+Condition labels are not used in the actual clustering implemented by *coseq*, and in fact are only used when visualizing clusters using the `plot` command if `collapse_rows = c("sum", "average")`. As such, the clustering itself should not be unduly influenced by unbalanced designs.

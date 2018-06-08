@@ -25,7 +25,7 @@ upper quantile, \dQuote{\code{Med}} for median, \dQuote{\code{DESeq}} for
 the normalization method in the DESeq package, and \dQuote{\code{TMM}} for
 the TMM normalization method (Robinson and Oshlack, 2010). Can also be a
 vector (of length \emph{q}) containing pre-estimated library size estimates
-for each sample.}
+for each sample, or \dQuote{\code{none}} if no normalization is required.}
 
 \item{model}{Type of mixture model to use (\dQuote{\code{Poisson}} or \dQuote{\code{Normal}}), or alternatively
 \dQuote{\code{kmeans}} for a K-means algorithm}

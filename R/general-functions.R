@@ -15,7 +15,7 @@
 #' the normalization method in the DESeq package, and \dQuote{\code{TMM}} for
 #' the TMM normalization method (Robinson and Oshlack, 2010). Can also be a
 #' vector (of length \emph{q}) containing pre-estimated library size estimates
-#' for each sample.
+#' for each sample, or \dQuote{\code{none}} if no normalization is required.
 #' @param model Type of mixture model to use (\dQuote{\code{Poisson}} or \dQuote{\code{Normal}}), or alternatively
 #' \dQuote{\code{kmeans}} for a K-means algorithm
 #' @param transformation Transformation type to be used: \dQuote{\code{voom}}, \dQuote{\code{logRPKM}}
@@ -358,7 +358,7 @@ Please double-check that your data are in the correct format.")
     if(modelChoice != "DDSE") message("Note: only DDSE is currently supported for model choice for K-means.")
     if(!transformation %in% c("clr", "alr", "logclr", "ilr")) {
       message("Transformation used is: ", transformation, "\n
-              Typically one of the following profile transformations is used with K-means: clr, alr, ilr, logclr")
+Typically one of the following profile transformations is used with K-means: clr, alr, ilr, logclr")
     }
     tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation=transformation,
                                geneLength=arg.user$geneLength,
@@ -411,10 +411,15 @@ Please double-check that your data are in the correct format.")
       Kerr <- Kerr[which(!is.na(Kerr))]
     }
 
-    if(length(K) < 10)
-      warning("Be careful: for model selection via capushe, at least 10 models should be estimated.")
-    cap <- suppressWarnings(capushe(matrix(c(K, sqrt(n*d*K), sqrt(n*d*K), tot_withinss), ncol=4)))
-    K_select <- paste0("K=",DDSEextract(cap)[1]) # nombre de classes s?l?ctionn? par capushe
+    if(length(K) < 10) {
+      message("For model selection via capushe, at least 10 models should be estimated.\n
+The model with the largest number of clusters has automatically been selected.")
+      K_select <- length(km_cluster)
+    }
+    if(length(K) >= 10) {
+      cap <- suppressWarnings(capushe(matrix(c(K, sqrt(n*d*K), sqrt(n*d*K), tot_withinss), ncol=4)))
+      K_select <- paste0("K=",DDSEextract(cap)[1]) # nombre de classes selectionne par capushe
+    }
     cluster_select <- km_cluster[[K_select]]
 
 #   ## Keep the estimated posterior probabilities for K-means rather than just the cluster labels
@@ -812,6 +817,8 @@ arcsin <- asin(sqrt(profiles))
 logit <- log2(profiles / (1-profiles))
 CLR <- clr(profiles)
 logCLR <- logclr(profiles)
+
+Then use transformation='none' and normFactors='none'.
 ")
   
   ##################################

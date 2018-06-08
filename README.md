@@ -33,12 +33,9 @@ via the [BiocParallel](https://bioconductor.org/packages/release/bioc/html/BiocP
 
 ### Reference
 
-Rau, A. and Maugis-Rabusseau, C. (2017) Transformation and model choice for co-expression analayis of RNA-seq data. 
-*Briefings in Bioinformatics*, doi: http://dx.doi.org/10.1101/065607.
+Rau, A. and Maugis-Rabusseau, C. (2018) Transformation and model choice for co-expression analysis of RNA-seq data. *Briefings in Bioinformatics*, 19(3)-425-436.
 
-Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2017) Clustering transformed compositional data using K-means, 
-with applications in gene expression and bicycle sharing system data. [arXiv:1704.06150](https://arxiv.org/abs/1704.06150).
-
+Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2018) Clustering transformed compositional data using K-means, with applications in gene expression and bicycle sharing system data. *Journal of Applied Statistics*, doi:10.1080/02664763.2018.1454894.
 
 ### License
 

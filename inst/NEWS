@@ -2,6 +2,23 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
+		coseq VERSION 1.5.1
+
+-- Clarify in documentation that normalization can be suppressed by setting 
+normFactors = "none" in coseq. (Thanks to David Rangel for many helpful discussions.)
+-- K-means can now be run for less than 10 models without provoking an error;
+however, a message appears to inform user that model selection via capushe is not 
+possible (and the largest model is automatically selected).
+-- Updated citations.
+-- The coseq plot function now has the argument collapse_rows, which can take the
+values c("none", "sum", "average"). When collapse_rows = "sum", the plot behaves
+the same as when average_over_conds = TRUE , and profiles for replicates within a 
+condition are summed. When collapse_rows = "average", values for replicates are
+averaged; this behavior may be preferable for highly unbalanced designs. (Thanks to
+Gosia Komor for the idea.)
+
+
+
 		coseq VERSION 1.3.2
 
 -- Added some clarification in the documentation of coseq, especially to

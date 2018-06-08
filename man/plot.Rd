@@ -12,17 +12,17 @@
 \usage{
 \S4method{plot}{coseqResults,ANY}(x, y_profiles = NULL, K = NULL,
   threshold = 0.8, conds = NULL, average_over_conds = FALSE,
-  graphs = c("logLike", "ICL", "profiles", "boxplots", "probapost_boxplots",
-  "probapost_barplots", "probapost_histogram"), order = FALSE,
-  profiles_order = NULL, n_row = NULL, n_col = NULL, ...)
+  collapse_reps = "none", graphs = c("logLike", "ICL", "profiles",
+  "boxplots", "probapost_boxplots", "probapost_barplots",
+  "probapost_histogram"), order = FALSE, profiles_order = NULL,
+  n_row = NULL, n_col = NULL, ...)
 
 coseqGlobalPlots(object, graphs = c("logLike", "ICL"), ...)
 
 coseqModelPlots(probaPost, y_profiles, K = NULL, threshold = 0.8,
-  conds = NULL, average_over_conds = FALSE, graphs = c("profiles",
-  "boxplots", "probapost_boxplots", "probapost_barplots",
-  "probapost_histogram"), order = FALSE, profiles_order = NULL,
-  n_row = NULL, n_col = NULL, ...)
+  conds = NULL, collapse_reps = "none", graphs = c("profiles", "boxplots",
+  "probapost_boxplots", "probapost_barplots", "probapost_histogram"),
+  order = FALSE, profiles_order = NULL, n_row = NULL, n_col = NULL, ...)
 }
 \arguments{
 \item{x}{An object of class \code{"coseqResults"}}
@@ -43,7 +43,13 @@ with maximum conditional probability greater than this threshold are visualized}
 
 \item{average_over_conds}{If \code{TRUE}, average values of \code{y_profiles} within
 each condition identified by \code{conds} for the \code{profiles} and \code{boxplots}
-plots}
+plots. This argument is redundant to \code{collapse_reps = "sum"}, and \code{collapse_reps}
+should be used instead.}
+
+\item{collapse_reps}{If \code{"none"}, display all replicates. If \code{"sum"}, collapse replicates
+within each condition by summing their profiles If \code{"average"}, collapse replicates within 
+each condition by averaging their profiles. For highly unbalanced experimental designs, using 
+\code{"average"} will likely provide more easily interpretable plots.}
 
 \item{graphs}{Graphs to be produced, one (or more) of the following:
 \code{"logLike"} (log-likelihood plotted versus number of clusters),
