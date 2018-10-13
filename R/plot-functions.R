@@ -73,7 +73,6 @@
 #' @importFrom grDevices heat.colors
 #' @importFrom scales alpha
 #' @importFrom stats hclust dist na.omit
-#' @importFrom gridExtra marrangeGrob
 #' @import ggplot2
 setMethod("plot", signature=signature(x="coseqResults"),
           definition=function(x, y_profiles=NULL, K=NULL, threshold=0.8, conds=NULL,
@@ -91,6 +90,11 @@ setMethod("plot", signature=signature(x="coseqResults"),
 
             object <- x
             if(is.null(y_profiles)) y_profiles <- profiles(object)
+            ## Check on the length of conds, if provided
+            if(!is.null(conds)) {
+              if(length(conds) != ncol(y_profiles))
+                stop("conds should be a vector of the same length as the number of samples used to create the coseq object.")
+            }
             if("logLike" %in% graphs | "ICL" %in% graphs) {
               if(model(object) != "kmeans") {
                 globalPlots <- coseqGlobalPlots(object, K=K, threshold=threshold, conds=conds,
@@ -127,13 +131,17 @@ setMethod("plot", signature=signature(x="coseqResults"),
                 xx <- xx * probacalc
               }
               if(average_over_conds) {
-                message("The average_over_conds argument is deprecated, and collapse_reps has been set to 'sum'.")
+                message("The average_over_conds argument is deprecated, and collapse_reps has been set to 'sum'.
+
+(Note that this was the default behavior of average_over_conds in previous versions.
+In applications where the number of replicates per condition is unbalanced, we suggest
+using collapse_reps = 'average' instead.)")
                 collapse_reps <- "sum"
               }
               modelPlots <- coseqModelPlots(probaPost=xx, y_profiles=y_profiles, K=NULL, threshold=threshold, conds=conds,
                    collapse_reps=collapse_reps,
                    graphs=graphs, order = order, alpha=arg.user$alpha,
-                   profiles_order=profiles_order, ...)
+                   profiles_order=profiles_order, n_row = n_row, n_col = n_col, ...)
               graph_objects <- c(graph_objects, modelPlots)
             }
         return(graph_objects)
@@ -261,7 +269,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
   ## Reorder clusters if desired
   pl_data$labels <- factor(pl_data$labels)
   if(!is.null(profiles_order)) {
-    if(length(profiles_order) == 1 & profiles_order) {
+    if(length(profiles_order) == 1 & is.logical(profiles_order)) {
       ## If actual normal mixture model
       meanmat <- matrix(0, nrow=ncol(object), ncol=ncol(y_profiles))
       for (k in seq_len(ncol(probaPost))) {
@@ -290,7 +298,6 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
     }
 
     ## Print all on the same page
-    if(is.null(n_row)) {
       g1 <- ggplot(pl_data_tmp[which(pl_data_tmp$proba > threshold),]) +
         geom_line(colour=alpha("black", arg.user$alpha),
                   aes_string(x=ifelse(collapse_reps != "none", "conds", "col_num"), y="y_prof", group="ID")) +
@@ -310,44 +317,44 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
 
       if(!is.null(K) & length(K) == 1) g1 <- g1 + ggtitle(paste("Cluster", K))
       if(is.null(K)) {
-        if(is.null(arg.user$facet_labels)) g1 <- g1 + facet_wrap(~labels)
+        if(is.null(arg.user$facet_labels)) g1 <- g1 + facet_wrap(~labels,
+                                                                 nrow=n_row, ncol=n_col)
         if(!is.null(arg.user$facet_labels))
-          g1 <- g1 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
-      }
- #     print(g1)
+          g1 <- g1 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels),
+                                nrow=n_row, ncol=n_col)
+
       graph_objects$profiles <- g1
     }
 
-
-    ## Print on different pages
-    if(!is.null(n_row)) {
-      g2_list <- lapply(levels(pl_data_tmp$labels), function(.x) {
-        pl_data2 <- pl_data_tmp[which(pl_data_tmp$labels == .x),]
-        pl_data2$labels <- factor(pl_data2$labels, levels=.x)
-        g2 <- ggplot(pl_data2[which(pl_data2$proba > threshold),]) +
-          geom_line(colour=alpha("black", arg.user$alpha),
-                    aes_string(x=ifelse(collapse_reps != "none", "conds", "col_num"), y="y_prof", group="ID")) +
-          geom_line(data=pl_data2[which(pl_data2$proba < threshold),],
-                    colour=alpha("red", arg.user$alpha),
-                    aes_string(x=ifelse(collapse_reps != "none", "conds", "col_num"), y="y_prof", group="ID")) +
-          theme_bw()
-        if(is.null(arg.user$facet_labels)) g2 <- g2 + facet_wrap(~labels)
-        if(!is.null(arg.user$facet_labels))
-          g2 <- g2 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
-        if(collapse_reps == "none") g2 <- g2 +
-          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Expression profiles", arg.user$ylab)) +
-          scale_x_continuous(name=ifelse(is.null(arg.user$xlab), "Sample number", arg.user$xlab))
-        if(collapse_reps == "sum") g2 <- g2 +
-          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Summed expression profiles", arg.user$ylab)) +
-          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
-        if(collapse_reps == "average") g2 <- g2 +
-          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Average expression profiles", arg.user$ylab)) +
-          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
-      })
-      g2 <- marrangeGrob(g2_list, n_col, n_row)
- #     print(g2)
-      graph_objects$profiles <- g2
-    }
+    # ## Print on different pages
+    # if(!is.null(n_row)) {
+    #   g2_list <- lapply(levels(pl_data_tmp$labels), function(.x) {
+    #     pl_data2 <- pl_data_tmp[which(pl_data_tmp$labels == .x),]
+    #     pl_data2$labels <- factor(pl_data2$labels, levels=.x)
+    #     g2 <- ggplot(pl_data2[which(pl_data2$proba > threshold),]) +
+    #       geom_line(colour=alpha("black", arg.user$alpha),
+    #                 aes_string(x=ifelse(collapse_reps != "none", "conds", "col_num"), y="y_prof", group="ID")) +
+    #       geom_line(data=pl_data2[which(pl_data2$proba < threshold),],
+    #                 colour=alpha("red", arg.user$alpha),
+    #                 aes_string(x=ifelse(collapse_reps != "none", "conds", "col_num"), y="y_prof", group="ID")) +
+    #       theme_bw()
+    #     if(is.null(arg.user$facet_labels)) g2 <- g2 + facet_wrap(~labels)
+    #     if(!is.null(arg.user$facet_labels))
+    #       g2 <- g2 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
+    #     if(collapse_reps == "none") g2 <- g2 +
+    #       scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Expression profiles", arg.user$ylab)) +
+    #       scale_x_continuous(name=ifelse(is.null(arg.user$xlab), "Sample number", arg.user$xlab))
+    #     if(collapse_reps == "sum") g2 <- g2 +
+    #       scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Summed expression profiles", arg.user$ylab)) +
+    #       scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
+    #     if(collapse_reps == "average") g2 <- g2 +
+    #       scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Average expression profiles", arg.user$ylab)) +
+    #       scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
+    #     return(g2)
+    #   })
+    #   g2 <- marrangeGrob(g2_list, ncol=n_col, nrow=n_row)
+    #   graph_objects$profiles <- g2
+    # }
   }
 
   #####################################################
@@ -372,7 +379,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
     pl_data$col_num <- factor(pl_data$col_num)
 
     ## Print all on the same page
-    if(is.null(n_row)) {
+ #   if(is.null(n_row)) {
       g3 <- ggplot(pl_data_tmp, aes_string(x=ifelse(collapse_reps == "none", "conds", "col_num"), y="y_prof"))
       if(!length(conds)) {
         g3 <- g3 +  geom_boxplot()
@@ -394,46 +401,48 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
         scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Average expression profiles", arg.user$ylab)) +
         scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
       if(is.null(K)) {
-        if(is.null(arg.user$facet_labels)) g3 <- g3 + facet_wrap(~labels)
+        if(is.null(arg.user$facet_labels)) g3 <- g3 + facet_wrap(~labels, nrow=n_row, ncol=n_col)
         if(!is.null(arg.user$facet_labels))
-          g3 <- g3 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
+          g3 <- g3 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels),
+                                nrow=n_row, ncol = n_col)
       }
  #     print(g3)
       graph_objects$boxplots <- g3
-    }
-    ## Print on different pages
-    if(!is.null(n_row)) {
-      g4_list <- lapply(levels(pl_data_tmp$labels), function(.x) {
-        pl_data2 <- pl_data_tmp[which(pl_data_tmp$labels == .x),]
-        pl_data2$labels <- factor(pl_data2$labels, levels=.x)
-        g4 <- ggplot(pl_data2, aes_string(x=ifelse(collapse_reps == "none", "conds", "col_num"), y="y_prof"))
-        if(!length(conds)) {
-          g4 <- g4 + geom_boxplot()
-        }
-        if(length(conds)) {
-          g4 <- g4 + geom_boxplot(aes_string(fill="conds")) +
-            scale_fill_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
-        }
-        g4 <- g4 + stat_summary(fun.y=mean, geom="line", aes(group=1), colour="red")  +
-          stat_summary(fun.y=mean, geom="point", colour="red")
-
-        if(is.null(arg.user$facet_labels)) g4 <- g4 + facet_wrap(~labels)
-        if(!is.null(arg.user$facet_labels))
-          g4 <- g4 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
-        if(collapse_reps == "none") g4 <- g4 +
-          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Expression profiles", arg.user$ylab)) +
-          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Sample number", arg.user$xlab))
-        if(collapse_reps == "sum") g4 <- g4 +
-          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Summed expression profiles", arg.user$ylab)) +
-          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
-        if(collapse_reps == "average") g4 <- g4 +
-          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Average expression profiles", arg.user$ylab)) +
-          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
-      })
-      g4 <- marrangeGrob(g4_list, n_col, n_row)
- #     print(g4)
-      graph_objects$boxplots <- g4
-    }
+    
+ #    ## Print on different pages
+ #    if(!is.null(n_row)) {
+ #      g4_list <- lapply(levels(pl_data_tmp$labels), function(.x) {
+ #        pl_data2 <- pl_data_tmp[which(pl_data_tmp$labels == .x),]
+ #        pl_data2$labels <- factor(pl_data2$labels, levels=.x)
+ #        g4 <- ggplot(pl_data2, aes_string(x=ifelse(collapse_reps == "none", "conds", "col_num"), y="y_prof"))
+ #        if(!length(conds)) {
+ #          g4 <- g4 + geom_boxplot()
+ #        }
+ #        if(length(conds)) {
+ #          g4 <- g4 + geom_boxplot(aes_string(fill="conds")) +
+ #            scale_fill_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
+ #        }
+ #        g4 <- g4 + stat_summary(fun.y=mean, geom="line", aes(group=1), colour="red")  +
+ #          stat_summary(fun.y=mean, geom="point", colour="red")
+ # 
+ #        if(is.null(arg.user$facet_labels)) g4 <- g4 + facet_wrap(~labels)
+ #        if(!is.null(arg.user$facet_labels))
+ #          g4 <- g4 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
+ #        if(collapse_reps == "none") g4 <- g4 +
+ #          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Expression profiles", arg.user$ylab)) +
+ #          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Sample number", arg.user$xlab))
+ #        if(collapse_reps == "sum") g4 <- g4 +
+ #          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Summed expression profiles", arg.user$ylab)) +
+ #          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
+ #        if(collapse_reps == "average") g4 <- g4 +
+ #          scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Average expression profiles", arg.user$ylab)) +
+ #          scale_x_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
+ #        return(g4)
+ #      })
+ #      g4 <- marrangeGrob(g4_list, ncol=n_col, nrow=n_row)
+ # #     print(g4)
+ #      graph_objects$boxplots <- g4
+ #    }
   }
 
 
@@ -441,16 +450,15 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
   ## PROBAPOST BOXPLOTS
   #####################################################
 
-  pl_data <- data.frame(ID=rep(rn, times=ncol(y_profiles)),
-                        y_prof=matrix(as.matrix(as.data.frame(y_profiles)), ncol=1),
-                        col_num=rep(seq_len(ncol(y_profiles)), each=nrow(y_profiles)),
-                        col_nam=rep(cn, each=nrow(y_profiles)),
-                        conds=conds_vec,
-                        labels=rep(labels, times=ncol(y_profiles)),
-                        proba=rep(proba, times=ncol(y_profiles)))
-  pl_data$labels <- factor(pl_data$labels)
-
   if("probapost_boxplots" %in% graphs) {
+    pl_data <- data.frame(ID=rep(rn, times=ncol(y_profiles)),
+                          y_prof=matrix(as.matrix(as.data.frame(y_profiles)), ncol=1),
+                          col_num=rep(seq_len(ncol(y_profiles)), each=nrow(y_profiles)),
+                          col_nam=rep(cn, each=nrow(y_profiles)),
+                          labels=rep(labels, times=ncol(y_profiles)),
+                          proba=rep(proba, times=ncol(y_profiles)))
+    pl_data$labels <- factor(pl_data$labels)
+    
     ## Single value of K or subset of values
     if(!is.null(K)) pl_data <- pl_data[which(pl_data$labels %in% K),]
     if(is.null(K) & order) {
@@ -469,6 +477,14 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
   ## PROBAPOST BARPLOTS
   #####################################################
   if("probapost_barplots" %in% graphs) {
+    pl_data <- data.frame(ID=rep(rn, times=ncol(y_profiles)),
+                          y_prof=matrix(as.matrix(as.data.frame(y_profiles)), ncol=1),
+                          col_num=rep(seq_len(ncol(y_profiles)), each=nrow(y_profiles)),
+                          col_nam=rep(cn, each=nrow(y_profiles)),
+                          labels=rep(labels, times=ncol(y_profiles)),
+                          proba=rep(proba, times=ncol(y_profiles)))
+    pl_data$labels <- factor(pl_data$labels)
+    
     pl_data2 <- pl_data[which(pl_data$col_num==1),]
     pl_data2$goodproba <- factor(ifelse(pl_data2$proba > threshold,
                                         paste(">", threshold), paste("<", threshold)),
@@ -498,6 +514,14 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
   ## PROBAPOST HISTOGRAM
   #####################################################
   if("probapost_histogram" %in% graphs) {
+    pl_data <- data.frame(ID=rep(rn, times=ncol(y_profiles)),
+                          y_prof=matrix(as.matrix(as.data.frame(y_profiles)), ncol=1),
+                          col_num=rep(seq_len(ncol(y_profiles)), each=nrow(y_profiles)),
+                          col_nam=rep(cn, each=nrow(y_profiles)),
+                          labels=rep(labels, times=ncol(y_profiles)),
+                          proba=rep(proba, times=ncol(y_profiles)))
+    pl_data$labels <- factor(pl_data$labels)
+    
     pl_data_tmp <- pl_data[which(pl_data$col_num == 1),]
     gg <- ggplot(pl_data_tmp, aes_string(x="proba")) +
       geom_histogram(binwidth = 0.01) +

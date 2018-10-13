@@ -124,6 +124,7 @@ Please double-check that your data are in the correct format.")
   cat("****************************************\n")
   cat("coseq analysis:", model, "approach &", transformation, "transformation\n")
   cat("K =", min(K), "to", max(K), "\n")
+  cat("Use set.seed() prior to running coseq for reproducible results.")
   cat("****************************************\n")
 
   ########################

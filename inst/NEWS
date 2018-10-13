@@ -2,6 +2,16 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
+		coseq VERSION 1.5.2
+
+-- Fix use of n_row and n_col in plotting function, and fix bug in coseq plotting
+when data feature an unbalanced number of replicates per condition. (Thanks to
+Yuguo Xiao for the bug report.)
+-- Remove dependency on gridExtra package (previously the use of n_row and n_col
+In plotting used marrangeGrob, but this is now directly dealt with using ggplot2).
+-- Update vignette to illustrate how to customize coseq plots via ggplot2.
+
+
 		coseq VERSION 1.5.1
 
 -- Clarify in documentation that normalization can be suppressed by setting 
