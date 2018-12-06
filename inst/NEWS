@@ -2,6 +2,11 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
+		coseq VERSION 1.7.1
+
+-- Add ImmunoOncology to biocViews in DESCRIPTION
+
+
 		coseq VERSION 1.5.2
 
 -- Fix use of n_row and n_col in plotting function, and fix bug in coseq plotting

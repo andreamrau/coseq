@@ -1,8 +1,8 @@
 Package: coseq
 Type: Package
 Title: Co-Expression Analysis of Sequencing Data
-Version: 1.7.0
-Date: 2018-10-12
+Version: 1.7.1
+Date: 2018-12-06
 Author: Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 Maintainer: Andrea Rau <andrea.rau@inra.fr>
 Depends: R (>= 3.4.0), SummarizedExperiment, S4Vectors
@@ -15,7 +15,7 @@ Description: Co-expression analysis for expression profiles arising from
 		are clustered using adapted transformations and mixture models or 
 		a K-means algorithm, and model selection criteria
         (to choose an appropriate number of clusters) are provided.
-biocViews: GeneExpression, RNASeq, Sequencing, Software
+biocViews: GeneExpression, RNASeq, Sequencing, Software, ImmunoOncology
 License: GPL (>=3)
 LazyLoad: yes
 RoxygenNote: 6.0.1
