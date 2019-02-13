@@ -6,8 +6,8 @@
 \usage{
 coseqRun(y, K, conds = NULL, normFactors = "TMM", model = "kmeans",
   transformation = "logclr", subset = NULL, meanFilterCutoff = 50,
-  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
-  BPPARAM = bpparam(), ...)
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"),
+  parallel = FALSE, BPPARAM = bpparam(), ...)
 }
 \arguments{
 \item{y}{(\emph{n} x \emph{q}) matrix of observed counts for \emph{n}

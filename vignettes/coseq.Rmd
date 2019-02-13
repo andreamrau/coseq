@@ -41,9 +41,14 @@ summary(run)
 plot(run)
 ```
 
-The cluster labels obtained from the `coseq` clustering may easily be obtained using the `clusters` functions:
+The cluster labels for the selected model obtained from the `coseq` clustering may easily be obtained using the `clusters` function:
 ```{r, eval=FALSE}
 clusters(run)
+```
+
+Similarly, the conditional probabilities of cluster membership for each gene in the selected `coseq` clustering model may be obtained using the `assay` accessor function:
+```{r, eval=FALSE}
+assay(run)
 ```
 
 Note that unless otherwise specified by the user, *coseq* uses the following default parameters:
@@ -62,7 +67,7 @@ Note that unless otherwise specified by the user, *coseq* uses the following def
 For the remainder of this vignette, we make use of the mouse neocortex RNA-seq data from [Fietz et al. (2012)](https://www.ncbi.nlm.nih.gov/pubmed/22753484) (available at https://perso.math.univ-toulouse.fr/maugis/mixstatseq/packages and as an ExpressionSet object called `fietz` in *coseq*). The aim in this study was to investigate the expansion of the neocortex in five embryonic (day 14.5) mice by analyzing the transcriptome of three regions: the ventricular zone (VZ), subventricular zone (SVZ) and cortical place (CP). 
 
 We begin by first loading the necessary R packages as well as the data.
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(coseq)
 library(Biobase)
 library(corrplot)
@@ -87,7 +92,7 @@ where $s_j$ are normalization scaling factors (e.g., after applying  [TMM](https
 
 Since the coordinates of $\mathbf{p}_i$ are linearly dependent (causing estimation problems for a Gaussian mixture distribution), weconsider either the arcsine or logit transformation of the normalized profiles $p_{ij}$:
 $$g_{\text{arcsin}}(p_{ij}) = \text{arcsin}\left( \sqrt{ p_{ij} } \right) \in [0, \pi/2], \text{ and}$$
-$$g_{\text{logit}}(p_{ij}) \text{log}_2 \left( \frac{p_{ij}}{1-p_{ij}}  \right) \in (-\infty, \infty).$$
+$$g_{\text{logit}}(p_{ij}) = \text{log}_2 \left( \frac{p_{ij}}{1-p_{ij}}  \right) \in (-\infty, \infty).$$
 
 Then the distribution of the transformed normalized expression profiles is modeled by a general multidimensional Gaussian mixture 
 
@@ -164,7 +169,7 @@ To choose the most appropriate transformation to use (arcsine versus logit) in a
 compareICL(list(runArcsin, runLogit))
 ```
 
-This indicates that the preferred transformation is the arcsine, and the selected model has $K = $ `{r} ncol(runArcsin)` clusters. We can additionally explore how similar the models with $K = $ `{r ncol(runArcsin)-1}` to `{r ncol(runArcsin)+1}` are using the adjusted Rand index (ARI) via the `compareARI` function. Values close to 1 indicate perfect agreement, while values close to 0 indicate near random partitions.
+This indicates that the preferred transformation is the arcsine, and the selected model has K = `r ncol(runArcsin)` clusters. We can additionally explore how similar the models with K = 8 to 12 are using the adjusted Rand index (ARI) via the `compareARI` function. Values close to 1 indicate perfect agreement, while values close to 0 indicate near random partitions.
 
 ```{r, figure=TRUE, fig.width=7, fig.height=7}
 compareARI(runArcsin, K=8:12)
@@ -220,11 +225,13 @@ colnames(rho1) <- rownames(rho1) <- paste0(colnames(rho1), "\n", conds)
 corrplot(rho1)
 ```
 
-Finally, cluster labels (as well as a variety of other information) are easily accessible via a set of accessor functions.
+Finally, cluster labels and conditional probabilities of cluster membership (as well as a variety of other information) are easily accessible via a set of accessor functions.
 
 ```{r}
 labels <- clusters(runArcsin)
 table(labels)
+probapost <- assay(runArcsin)
+head(probapost)
 
 metadata(runArcsin)
 likelihood(runArcsin)
@@ -244,7 +251,7 @@ tcounts(runArcsin)
 profiles(runArcsin)
 ```
 
-Finally, if the results for a model in the collection other than that chosen by ICL are desired, they may be accessed in the form of a list using the `coseqFullResults` function.
+Finally, if the results (e.g., the conditional probabilities of cluster membership) for a model in the collection other than that chosen by ICL/slope heuristics are desired, they may be accessed in the form of a list using the `coseqFullResults` function.
 
 ```{r}
 fullres <- coseqFullResults(runArcsin)
@@ -352,7 +359,7 @@ Because the results of `coseq` depend on the initialization point, results from 
 
 4. How do I output the clustering results?
 
-Use the `clusters(...)` command.
+Use the `clusters(...)` command for cluster labels, and the `assay(...)` command for conditional probabilities of cluster membership.
 
 
 5. How can I check whether all models converged?
@@ -368,3 +375,7 @@ Yes, you should just specify `normFactors = "none"` and `transformation = "none"
 7. Does it matter if I have an unbalanced experimental design?
 
 Condition labels are not used in the actual clustering implemented by *coseq*, and in fact are only used when visualizing clusters using the `plot` command if `collapse_rows = c("sum", "average")`. As such, the clustering itself should not be unduly influenced by unbalanced designs.
+
+8. Why did I get an error message about the singular covariance matrices for the form of Gaussian mixture model I used?
+
+Occasionally, the default form of Gaussian mixture model (`Gaussian_pk_Lk_CK`, which is the most general form available with per-cluster proportions, volumes, shapes, and orientations for covariance matrices) used in `coseq` is not estimable (via the `Rmixmod` package used by `coseq`) due to non-invertible per-cluster covariance matrices. The error message thus suggests using a slightly more restrictive form of Gaussian mixture model, such as the `Gaussian_pk_Lk_Bk` (which imposes spherical covariance matrices) or `Gaussian_pk_Lk_I` (which imposes diagonal covariance matrices). See `?Rmixmod::mixmodGaussianModel` for more details about the nomenclature and possible forms of Gaussian mixture models.

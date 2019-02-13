@@ -74,15 +74,15 @@
 #' @importFrom scales alpha
 #' @importFrom stats hclust dist na.omit
 #' @import ggplot2
-setMethod("plot", signature=signature(x="coseqResults"),
+setMethod(f="plot", signature(x="coseqResults"),
           definition=function(x, y_profiles=NULL, K=NULL, threshold=0.8, conds=NULL,
                               average_over_conds=FALSE,
                               collapse_reps = "none",
                               graphs=c("logLike", "ICL",
                                       "profiles", "boxplots", "probapost_boxplots",
                                        "probapost_barplots", "probapost_histogram"),
-                              order=FALSE, profiles_order=NULL, n_row=NULL, n_col=NULL, ...)
-          {
+                              order=FALSE, profiles_order=NULL, n_row=NULL, n_col=NULL, ...) {
+            # x <- object
             graph_objects <- c()
             ## Parse ellipsis function
             arg.user <- list(...)
@@ -380,7 +380,8 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
 
     ## Print all on the same page
  #   if(is.null(n_row)) {
-      g3 <- ggplot(pl_data_tmp, aes_string(x=ifelse(collapse_reps == "none", "conds", "col_num"), y="y_prof"))
+      g3 <- ggplot(pl_data_tmp, 
+                   aes_string(x=ifelse(collapse_reps == "none", "col_num", "conds"), y="y_prof"))
       if(!length(conds)) {
         g3 <- g3 +  geom_boxplot()
       }

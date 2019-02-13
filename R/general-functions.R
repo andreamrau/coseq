@@ -124,7 +124,7 @@ Please double-check that your data are in the correct format.")
   cat("****************************************\n")
   cat("coseq analysis:", model, "approach &", transformation, "transformation\n")
   cat("K =", min(K), "to", max(K), "\n")
-  cat("Use set.seed() prior to running coseq for reproducible results.")
+  cat("Use set.seed() prior to running coseq for reproducible results.\n")
   cat("****************************************\n")
 
   ########################
@@ -336,6 +336,8 @@ Please double-check that your data are in the correct format.")
   ########################
   if(length(model) & model == "Normal") {
 
+    # (pk_Lk_Bk) or diagonal (pk_Lk_I)
+    
     if(modelChoice != "ICL") message("Note: only ICL is currently supported for model choice for Normal mixture models.")
     tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation=transformation,
                                 geneLength=arg.user$geneLength, meanFilterCutoff=meanFilterCutoff, verbose=FALSE)

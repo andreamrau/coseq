@@ -147,6 +147,17 @@ coseq(..., GaussianModel = \"Gaussian_pk_Lk_I\")"))
                                                        ICL=ICL.all,
                                                        nbClusterError=K[!K %in% nbClust.all],
                                                        GaussianModel=arg.user$GaussianModel))
+  
+  if(sum(is.nan(assay(select.results))) == prod(dim(assay(select.results)))) {
+    stop(paste0("The selected model, which is of the form ", arg.user$GaussianModel, ", resulted in estimation errors.
+This is likely due to singular covariance matrices when this form of Gaussian mixture is used.
+Try rerunning coseq with either a spherical (pk_Lk_Bk) or diagonal (pk_Lk_I)
+covariance matrix form instead:
+
+coseq(..., GaussianModel = \"Gaussian_pk_Lk_Bk\")
+coseq(..., GaussianModel = \"Gaussian_pk_Lk_I\")"))
+  }
+  
   RES <- coseqResults(as(select.results, "RangedSummarizedExperiment"), allResults=pp)
   return(RES)
 }

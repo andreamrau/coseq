@@ -3,12 +3,9 @@
 \docType{methods}
 \name{compareARI}
 \alias{compareARI}
-\alias{compareARI}
 \alias{compareARI-methods}
 \alias{compareARI,coseqResults-method}
 \alias{compareARI,RangedSummarizedExperiment-method}
-\alias{compareARI,matrix-method}
-\alias{compareARI,data.frame-method}
 \alias{compareARI,matrix-method}
 \alias{compareARI,data.frame-method}
 \title{Pairwise comparisons of ARI values among a set of clustering partitions}
@@ -18,8 +15,8 @@ compareARI(object, ...)
 \S4method{compareARI}{coseqResults}(object, K = NULL, parallel = FALSE,
   BPPARAM = bpparam(), plot = TRUE, ...)
 
-\S4method{compareARI}{matrix}(object, parallel = FALSE, BPPARAM = bpparam(),
-  plot = TRUE, ...)
+\S4method{compareARI}{matrix}(object, parallel = FALSE,
+  BPPARAM = bpparam(), plot = TRUE, ...)
 
 \S4method{compareARI}{data.frame}(object, parallel = FALSE,
   BPPARAM = bpparam(), plot = TRUE, ...)

@@ -4,10 +4,7 @@
 \name{coseq}
 \alias{coseq}
 \alias{coseq,matrix-method}
-\alias{coseq}
 \alias{coseq-methods}
-\alias{coseq,data.frame-method}
-\alias{coseq,DESeqDataSet-method}
 \alias{coseq,data.frame-method}
 \alias{coseq,DESeqDataSet-method}
 \title{Co-expression or co-abudance analysis of high-throughput sequencing data}
@@ -15,19 +12,19 @@
 coseq(object, ...)
 
 \S4method{coseq}{matrix}(object, K, subset = NULL, model = "kmeans",
-  transformation = "logclr", normFactors = "TMM", meanFilterCutoff = NULL,
-  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
-  BPPARAM = bpparam(), ...)
+  transformation = "logclr", normFactors = "TMM",
+  meanFilterCutoff = NULL, modelChoice = ifelse(model == "kmeans",
+  "DDSE", "ICL"), parallel = FALSE, BPPARAM = bpparam(), ...)
 
-\S4method{coseq}{data.frame}(object, K, subset = NULL, model = "kmeans",
-  transformation = "logclr", normFactors = "TMM", meanFilterCutoff = NULL,
-  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
-  BPPARAM = bpparam(), ...)
+\S4method{coseq}{data.frame}(object, K, subset = NULL,
+  model = "kmeans", transformation = "logclr", normFactors = "TMM",
+  meanFilterCutoff = NULL, modelChoice = ifelse(model == "kmeans",
+  "DDSE", "ICL"), parallel = FALSE, BPPARAM = bpparam(), ...)
 
 \S4method{coseq}{DESeqDataSet}(object, K, model = "kmeans",
-  transformation = "logclr", normFactors = "TMM", meanFilterCutoff = NULL,
-  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"), parallel = FALSE,
-  BPPARAM = bpparam(), ...)
+  transformation = "logclr", normFactors = "TMM",
+  meanFilterCutoff = NULL, modelChoice = ifelse(model == "kmeans",
+  "DDSE", "ICL"), parallel = FALSE, BPPARAM = bpparam(), ...)
 }
 \arguments{
 \item{object}{Data to be clustered. May be provided as a y (\emph{n} x \emph{q})

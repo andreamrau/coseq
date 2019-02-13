@@ -51,3 +51,7 @@ setGeneric("DDSEextract", function(object,...) standardGeneric("DDSEextract"))
 
 #' @rdname coseqHelpers
 setGeneric("Djumpextract", function(object,...) standardGeneric("Djumpextract"))
+
+#' @rdname plot
+#' @export
+setGeneric("plot", function(x, ...) standardGeneric("plot"))
