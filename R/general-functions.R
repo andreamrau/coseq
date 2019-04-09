@@ -144,7 +144,7 @@ Please double-check that your data are in the correct format.")
     conds.names <- unique(conds)
     d <- length(unique(conds))
     r <- as.vector(table(conds))
-    if(!length(rownames(y))) rn <- 1:nrow(y)
+    if(!length(rownames(y))) rn <- seq_len(nrow(y))
     if(length(rownames(y))) rn <- rownames(y)
     y <- as.matrix(y, nrow = nrow(y), ncol = ncol(y))
     rownames(y) <- rn

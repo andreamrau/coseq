@@ -322,7 +322,8 @@ coexp <- coseq(object=countmat, K=2:15, iter=5, transformation="logclr",
 
 ## Original boxplot
 p <- plot(coexp, graphs = "boxplots", conds = conds, 
-     profiles_order = 10:1, collapse_reps = "average",
+     profiles_order = sort(unique(clusters(coexp)), decreasing=TRUE), 
+     collapse_reps = "average",
      n_row = 3, n_col = 4)
 p$boxplots
 ```

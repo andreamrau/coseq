@@ -96,7 +96,7 @@ setMethod("summary", signature(object="coseqResults"), function(object, y_profil
     cat("Number of observations with MAP > 0.90 per cluster (% of total per cluster):\n")
 
     tab2 <- matrix(NA, nrow = 2, ncol = g)
-    colnames(tab2) <- paste("Cluster", 1:g)
+    colnames(tab2) <- paste("Cluster", seq_len(g))
     rownames(tab2) <- rep("", 2)
     for(i in seq_len(g)) {
       if(sum(labels == i) > 1) {

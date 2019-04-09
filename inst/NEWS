@@ -2,7 +2,7 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
-		coseq VERSION 1.7.1 - 1.7.2
+		coseq VERSION 1.7.1 - 1.7.3
 
 -- Add ImmunoOncology to biocViews in DESCRIPTION
 -- Add informative error message when a subset of estimated Gaussian mixture models

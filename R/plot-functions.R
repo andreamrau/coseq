@@ -242,7 +242,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                                     rep(seq_len(nrow(y_profiles_c)), times=ncol(y_profiles_c)),
                                     rownames(y_profiles_c)),
                           y_prof=matrix(as.matrix(y_profiles_c), ncol=1),
-                          col_num=rep(1:ncol(y_profiles_c), each=nrow(y_profiles_c)),
+                          col_num=rep(seq_len(ncol(y_profiles_c)), each=nrow(y_profiles_c)),
                           col_nam=rep(colnames(y_profiles_c), each=nrow(y_profiles_c)),
                           conds=conds_vec,
                           labels=rep(labels, times=ncol(y_profiles_c)),
@@ -258,7 +258,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                                     rep(seq_len(nrow(y_profiles_c)), times=ncol(y_profiles_c)),
                                     rownames(y_profiles_c)),
                           y_prof=matrix(as.matrix(y_profiles_c), ncol=1),
-                          col_num=rep(1:ncol(y_profiles_c), each=nrow(y_profiles_c)),
+                          col_num=rep(seq_len(ncol(y_profiles_c)), each=nrow(y_profiles_c)),
                           col_nam=rep(colnames(y_profiles_c), each=nrow(y_profiles_c)),
                           conds=conds_vec,
                           labels=rep(labels, times=ncol(y_profiles_c)),
@@ -276,9 +276,10 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
         meanmat[k,]<- apply(probaPost[,k] * y_profiles,2,sum) / sum(probaPost[,k])
       }
       ord <- hclust(dist(meanmat))$order
-    }
-    if(length(profiles_order) == length(table(labels))) {
+    } else if(length(profiles_order) == length(unique(labels))) {
       ord <- profiles_order
+    } else {
+      ord <- sort(unique(labels))
     }
     pl_data$labels <- factor(pl_data$labels, levels=ord)
   }
