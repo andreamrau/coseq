@@ -11,11 +11,10 @@ test_that("K is a vector of positive integers", {
   expect_error(coseq(obj, K=c(1.5, 3.3, 5.2), verbose=FALSE))
 })
 
-obj <- data.frame(obj)
+# obj <- data.frame(obj)
 
 test_that("model, transformation, normFactors, ICL", {
   expect_error(coseq(obj, K=2:4, model="Gamma", verbose=FALSE))
-  expect_error(coseq(obj, K=2:4, transformation="other", verbose=FALSE))
   expect_error(coseq(obj, K=2:4, transformation="other", verbose=FALSE))
 })
 
@@ -27,8 +26,6 @@ test_that("coseq output", {
   expect_equal(max(clusters(coseq_res)),
                as.numeric(substr(names(which.min(ICL(coseq_res))), 3, 10)))
   expect_equal(min(clusters(coseq_res)), 1)
-  expect_equal(as.numeric(substr(names(which.min(ICL(coseq_res))), 3, 10)),
-               max(clusters(coseq_res)))
   expect_equal(length(nbCluster(coseq_res)), length(likelihood(coseq_res)))
   expect_equal(length(ICL(coseq_res)), length(likelihood(coseq_res)))
   expect_equal(nrow(profiles(coseq_res)), nrow(tcounts(coseq_res)))
