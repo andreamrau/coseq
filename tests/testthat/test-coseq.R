@@ -43,21 +43,21 @@ test_that("compareARI", {
 })
 
 #-------------------------------------------------------------------------------
-context("general function tests")
-test_that("compareICL, clusterEntropy, transformRNAseq", {
-  coseq_res2 <- coseq(obj, K=2:4, transformation="logMedianRef",
-                      GaussianModel="Gaussian_pk_Lk_I", model="Normal",
-                     verbose=FALSE, norm="none")
-  expect_error(compareICL(list(coseq_res, coseq_res2)))
-  expect_equal(length(clusterEntropy(assay(coseq_res))),
-               as.numeric(substr(names(which.min(ICL(coseq_res))), 3, 10)))
-
-  objtr <- transformRNAseq(obj, normFactors="none", transformation="arcsin",
-                              geneLength=NA, meanFilterCutoff=NULL, verbose=FALSE)
-  expect_equal(nrow(objtr$tcounts), nrow(obj))
-  expect_equal(ncol(objtr$tcounts), ncol(obj))
-
-})
+# context("general function tests")
+# test_that("compareICL, clusterEntropy, transformRNAseq", {
+#   coseq_res2 <- coseq(obj, K=2:4, transformation="logMedianRef",
+#                       GaussianModel="Gaussian_pk_Lk_I", model="Normal",
+#                      verbose=FALSE, norm="none")
+#   expect_error(compareICL(list(coseq_res, coseq_res2)))
+#   expect_equal(length(clusterEntropy(assay(coseq_res))),
+#                as.numeric(substr(names(which.min(ICL(coseq_res))), 3, 10)))
+# 
+#   objtr <- transformRNAseq(obj, normFactors="none", transformation="arcsin",
+#                               geneLength=NA, meanFilterCutoff=NULL, verbose=FALSE)
+#   expect_equal(nrow(objtr$tcounts), nrow(obj))
+#   expect_equal(ncol(objtr$tcounts), ncol(obj))
+# 
+# })
 
 
 
