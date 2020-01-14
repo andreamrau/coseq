@@ -12,7 +12,7 @@ mixture models or a K-means algorithm, and model selection criteria
 }
 \details{
 \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-\tab 1.5.1\cr Date: \tab 2018-06-08\cr License: \tab GPL (>=3)\cr LazyLoad:
+\tab 1.11.1\cr Date: \tab 2020-01-04\cr License: \tab GPL (>=3)\cr LazyLoad:
 \tab yes\cr }
 }
 \examples{
@@ -76,7 +76,7 @@ Inria Research Report 7786. Available at
 \author{
 Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 
-Maintainer: Andrea Rau <\url{andrea.rau@inra.fr}>
+Maintainer: Andrea Rau <\url{andrea.rau@inrae.fr}>
 }
 \keyword{cluster}
 \keyword{models}

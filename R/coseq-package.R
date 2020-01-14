@@ -6,7 +6,7 @@
 #' (to choose an appropriate number of clusters) are provided.
 #'
 #' \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-#' \tab 1.5.1\cr Date: \tab 2018-06-08\cr License: \tab GPL (>=3)\cr LazyLoad:
+#' \tab 1.11.1\cr Date: \tab 2020-01-04\cr License: \tab GPL (>=3)\cr LazyLoad:
 #' \tab yes\cr }
 #'
 #' @name coseq-package
@@ -14,7 +14,7 @@
 #' @docType package
 #' @author Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 #'
-#' Maintainer: Andrea Rau <\url{andrea.rau@@inra.fr}>
+#' Maintainer: Andrea Rau <\url{andrea.rau@@inrae.fr}>
 #' @references
 #' Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2018) Clustering
 #' transformed compositional data using K-means, with applications in gene
