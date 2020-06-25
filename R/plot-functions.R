@@ -390,8 +390,8 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
         g3 <- g3 + geom_boxplot(aes_string(fill="conds")) +
           scale_fill_discrete(name="Conditions")
       }
-      g3 <- g3 + stat_summary(fun.y=mean, geom="line", aes(group=1), colour="red")  +
-        stat_summary(fun.y=mean, geom="point", colour="red")
+      g3 <- g3 + stat_summary(fun=mean, geom="line", aes(group=1), colour="red")  +
+        stat_summary(fun=mean, geom="point", colour="red")
       if(!is.null(K) & length(K) > 1) g3 <- g3 +  ggtitle(paste("Cluster", K))
       if(collapse_reps == "none") g3 <- g3 +
         scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Expression profiles", arg.user$ylab)) +
@@ -424,8 +424,8 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
  #          g4 <- g4 + geom_boxplot(aes_string(fill="conds")) +
  #            scale_fill_discrete(name=ifelse(is.null(arg.user$xlab), "Conditions", arg.user$xlab))
  #        }
- #        g4 <- g4 + stat_summary(fun.y=mean, geom="line", aes(group=1), colour="red")  +
- #          stat_summary(fun.y=mean, geom="point", colour="red")
+ #        g4 <- g4 + stat_summary(fun=mean, geom="line", aes(group=1), colour="red")  +
+ #          stat_summary(fun=mean, geom="point", colour="red")
  # 
  #        if(is.null(arg.user$facet_labels)) g4 <- g4 + facet_wrap(~labels)
  #        if(!is.null(arg.user$facet_labels))
