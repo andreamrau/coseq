@@ -2,6 +2,10 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
+    coseq VERSION 1.13.1
+    
+-- Adjust plotting function to remove ggplot2 warning. (Thanks to Praveen Kumar for the pull request.)
+
 		coseq VERSION 1.7.1 - 1.7.3
 
 -- Add ImmunoOncology to biocViews in DESCRIPTION
