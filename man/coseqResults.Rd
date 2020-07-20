@@ -6,9 +6,15 @@
 \alias{coseqResults}
 \title{coseqResults object and constructor}
 \usage{
-coseqResults(SummarizedExperiment, allResults, model = NULL,
-  transformation = NULL, tcounts = NULL, y_profiles = NULL,
-  normFactors = NULL)
+coseqResults(
+  SummarizedExperiment,
+  allResults,
+  model = NULL,
+  transformation = NULL,
+  tcounts = NULL,
+  y_profiles = NULL,
+  normFactors = NULL
+)
 }
 \arguments{
 \item{SummarizedExperiment}{a \code{RangedSummarizedExperiment} of \code{coseq} results}

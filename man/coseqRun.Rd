@@ -4,10 +4,21 @@
 \alias{coseqRun}
 \title{Co-expression analysis}
 \usage{
-coseqRun(y, K, conds = NULL, normFactors = "TMM", model = "kmeans",
-  transformation = "logclr", subset = NULL, meanFilterCutoff = 50,
+coseqRun(
+  y,
+  K,
+  conds = NULL,
+  normFactors = "TMM",
+  model = "kmeans",
+  transformation = "logclr",
+  subset = NULL,
+  meanFilterCutoff = 50,
   modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"),
-  parallel = FALSE, BPPARAM = bpparam(), ...)
+  parallel = FALSE,
+  BPPARAM = bpparam(),
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{y}{(\emph{n} x \emph{q}) matrix of observed counts for \emph{n}
@@ -61,6 +72,9 @@ internal garbage collection will copy these files while running on worker nodes.
 \item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} when
 \code{parallel=TRUE}. If not specified, the parameters last registered with \code{register}
 will be used.}
+
+\item{seed}{If desired, an integer defining the seed of the random number generator. If
+\code{NULL}, a random seed is used.}
 
 \item{...}{Additional optional parameters.}
 }

@@ -19,6 +19,8 @@
 #' @param BPPARAM Optional parameter object passed internally to \code{bplapply} when
 #' \code{parallel=TRUE}. If not specified, the parameters last registered with \code{register}
 #' will be used.
+#' @param seed If desired, an integer defining the seed of the random number generator. If
+#' \code{NULL}, a random seed is used.
 #' @param ... Additional optional parameters to be passed to \code{\link{NormMixClusK}}.
 #'
 #' @return
@@ -34,7 +36,8 @@
 #' @importFrom BiocParallel bpparam
 #' @export
 
-NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bpparam(), ...){
+NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bpparam(), 
+                        seed = NULL, ...){
 
   subset.index <- subset
 
@@ -63,7 +66,7 @@ NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bppar
                                                      iter=arg.user$iter,
                                                      cutoff=arg.user$cutoff,
                                                      GaussianModel=arg.user$GaussianModel,
-                                                     digits=arg.user$digits))
+                                                     digits=arg.user$digits, seed=seed))
   index <- 2
   remainingK <- K[-which.min(K)]
   if (length(remainingK)) {
@@ -81,14 +84,15 @@ NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bppar
                                                                iter=arg.user$iter,
                                                                cutoff=arg.user$cutoff,
                                                                GaussianModel=arg.user$GaussianModel,
-                                                               digits=arg.user$digits))
+                                                               digits=arg.user$digits,
+                                                              seed=seed))
         index <- index + 1
       }
       ## In the case where parallelization IS used
     } else if(parallel) {
       tmp <- bplapply(remainingK, function(ii, N_y_profiles, N_alg.type, N_init.runs,
                                            N_init.type, N_init.iter, N_iter, N_cutoff,
-                                           N_GaussianModel, N_digits, N_verbose, N_FUNC) {
+                                           N_GaussianModel, N_digits, N_verbose, N_FUNC, N_seed) {
         if(N_verbose == TRUE) {
           cat("Running K =", ii, "...\n")
         }
@@ -96,13 +100,14 @@ NormMixClus <- function(y_profiles, K, subset=NULL, parallel=TRUE, BPPARAM=bppar
                                               alg.type=N_alg.type, init.runs=N_init.runs,
                                               init.type=N_init.type, init.iter=N_init.iter,
                                               iter=N_iter, cutoff=N_cutoff,
-                                              GaussianModel=N_GaussianModel, digits=N_digits))
+                                              GaussianModel=N_GaussianModel, digits=N_digits,
+                                       seed=N_seed))
 
         return(res)},
         N_y_profiles=y_profiles, N_alg.type=arg.user$alg.type, N_init.runs = arg.user$init.runs,
         N_init.type=arg.user$init.type, N_init.iter=arg.user$init.iter, N_iter=arg.user$iter,
         N_cutoff=arg.user$cutoff, N_GaussianModel=arg.user$GaussianModel, N_digits=arg.user$digits,
-        N_verbose=arg.user$verbose, N_FUNC=NormMixClusK,
+        N_verbose=arg.user$verbose, N_FUNC=NormMixClusK, N_seed = seed,
         BPPARAM=BPPARAM)
       if(!sum(unlist(lapply(tmp, nrow)))) {
         stop(paste("All models of form", arg.user$GaussianModel, "resulted in estimation errors.
@@ -190,6 +195,8 @@ coseq(..., GaussianModel = \"Gaussian_pk_Lk_I\")"))
 #' @param verbose If \code{TRUE}, verbose output is created
 #' @param digits Integer indicating the number of decimal places to be used for the
 #' \code{probaPost} output
+#' @param seed If desired, an integer defining the seed of the random number generator. If
+#' \code{NULL}, a random seed is used.
 #'
 #' @return
 #' An S4 object of class \code{RangedSummarizedExperiment}, with conditional
@@ -207,8 +214,9 @@ coseq(..., GaussianModel = \"Gaussian_pk_Lk_I\")"))
 #' @export
 
 NormMixClusK <- function(y_profiles, K, alg.type="EM", init.runs=50,
-                          init.type="small-em", GaussianModel="Gaussian_pk_Lk_Ck",
-                          init.iter=20, iter=1000, cutoff=0.001, verbose=TRUE, digits=3) {
+                         init.type="small-em", GaussianModel="Gaussian_pk_Lk_Ck",
+                         init.iter=20, iter=1000, cutoff=0.001, verbose=TRUE, digits=3,
+                         seed = NULL) {
 
   if(!is.data.frame(y_profiles)) y_profiles <- as.data.frame(y_profiles)
 
@@ -218,10 +226,14 @@ NormMixClusK <- function(y_profiles, K, alg.type="EM", init.runs=50,
   strats<-mixmodStrategy(algo=alg.type, nbTry = 1,
                          initMethod = init.type, nbTryInInit = init.runs,
                          nbIterationInInit = init.iter, nbIterationInAlgo = iter,
-                         epsilonInInit = cutoff, epsilonInAlgo = cutoff,
-                         seed = NULL)
-  xem <- mixmodCluster(y_profiles, nbCluster=K, models=models, strategy=strats,
-                       criterion="ICL")
+                         epsilonInInit = cutoff, epsilonInAlgo = cutoff)
+  if(is.null(seed)) {
+    xem <- mixmodCluster(y_profiles, nbCluster=K, models=models, strategy=strats,
+                         criterion="ICL")
+  } else {
+    xem <- mixmodCluster(y_profiles, nbCluster=K, models=models, strategy=strats,
+                         criterion="ICL", seed = seed) 
+  }
   pp <- round(proba(xem), digits=digits )
   if(ncol(pp)) {
     colnames(pp) <- paste0("Cluster_", seq_len(ncol(pp)))

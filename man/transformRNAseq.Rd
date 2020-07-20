@@ -4,8 +4,14 @@
 \alias{transformRNAseq}
 \title{Transform RNA-seq data using common transformations}
 \usage{
-transformRNAseq(y, normFactors = "TMM", transformation = "arcsin",
-  geneLength = NA, meanFilterCutoff = NULL, verbose = TRUE)
+transformRNAseq(
+  y,
+  normFactors = "TMM",
+  transformation = "arcsin",
+  geneLength = NA,
+  meanFilterCutoff = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{y}{(\emph{n} x \emph{q}) \code{matrix} or \code{data.frame} of observed counts

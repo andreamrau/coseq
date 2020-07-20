@@ -4,10 +4,20 @@
 \alias{NormMixClusK}
 \title{Normal mixture model estimation}
 \usage{
-NormMixClusK(y_profiles, K, alg.type = "EM", init.runs = 50,
-  init.type = "small-em", GaussianModel = "Gaussian_pk_Lk_Ck",
-  init.iter = 20, iter = 1000, cutoff = 0.001, verbose = TRUE,
-  digits = 3)
+NormMixClusK(
+  y_profiles,
+  K,
+  alg.type = "EM",
+  init.runs = 50,
+  init.type = "small-em",
+  GaussianModel = "Gaussian_pk_Lk_Ck",
+  init.iter = 20,
+  iter = 1000,
+  cutoff = 0.001,
+  verbose = TRUE,
+  digits = 3,
+  seed = NULL
+)
 }
 \arguments{
 \item{y_profiles}{y (\emph{n} x \emph{q}) matrix of observed profiles for \emph{n}
@@ -39,6 +49,9 @@ Small-EM strategry, with a default value of 20}
 
 \item{digits}{Integer indicating the number of decimal places to be used for the
 \code{probaPost} output}
+
+\item{seed}{If desired, an integer defining the seed of the random number generator. If
+\code{NULL}, a random seed is used.}
 }
 \value{
 An S4 object of class \code{RangedSummarizedExperiment}, with conditional

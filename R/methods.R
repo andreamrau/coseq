@@ -38,7 +38,7 @@ setMethod("coseq",
           definition=function(object, K, subset=NULL, model="kmeans", transformation="logclr",
                               normFactors="TMM", meanFilterCutoff=NULL,
                               modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
-                              parallel=FALSE,  BPPARAM=bpparam(), ...)
+                              parallel=FALSE,  BPPARAM=bpparam(), seed=NULL, ...)
           {
             y <- object
             arg.user <- list(...)
@@ -47,7 +47,7 @@ setMethod("coseq",
               run <- coseqRun(y=y, K=K, subset=subset, model=model, transformation=transformation,
                                normFactors=normFactors, meanFilterCutoff=meanFilterCutoff, modelChoice=modelChoice,
                                parallel=parallel,
-                               BPPARAM=BPPARAM, ...)
+                               BPPARAM=BPPARAM, seed=seed, ...)
             }
             if(is(subset, "DESeqResults")) {
               if(nrow(subset) != nrow(y)) stop("y and subset must have the same number of rows")
@@ -59,7 +59,7 @@ setMethod("coseq",
               run <- coseqRun(y=y, K=K, subset=subset.index, model=model, transformation=transformation,
                               normFactors="DESeq", meanFilterCutoff=NULL, modelChoice=modelChoice,
                                parallel=parallel,
-                               BPPARAM=BPPARAM, ...)
+                               BPPARAM=BPPARAM, seed=seed, ...)
             }
             if(is(subset, "DGELRT")) {
               res <- subset
@@ -75,7 +75,7 @@ setMethod("coseq",
               run <- coseqRun(y=y, K=K, subset=subset.index, model=model, transformation=transformation,
                               normFactors="TMM", meanFilterCutoff=NULL, modelChoice=modelChoice,
                                parallel=parallel,
-                               BPPARAM=BPPARAM, ...)
+                               BPPARAM=BPPARAM, seed=seed, ...)
             }
             return(run)
           })
@@ -89,12 +89,12 @@ setMethod("coseq", signature=signature(object="data.frame"),
           definition=function(object, K, subset=NULL, model="kmeans", transformation="logclr",
                               normFactors="TMM", meanFilterCutoff=NULL,
                               modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
-                              parallel=FALSE,  BPPARAM=bpparam(), ...)
+                              parallel=FALSE,  BPPARAM=bpparam(), seed=NULL, ...)
           {
             y <- as.matrix(object)
             run <- coseq(y, K=K, subset=subset, model=model, transformation=transformation, normFactors=normFactors,
                          meanFilterCutoff=meanFilterCutoff, modelChoice=modelChoice, parallel=parallel,
-                         BPPPARAM=BPPARAM, ...)
+                         BPPPARAM=BPPARAM, seed=seed, ...)
             return(run)
           })
 
@@ -109,7 +109,7 @@ setMethod("coseq", signature=signature(object="DESeqDataSet"),
           definition=function(object, K, model="kmeans", transformation="logclr",
                               normFactors="TMM", meanFilterCutoff=NULL,
                               modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
-                              parallel=FALSE, BPPARAM=bpparam(), ...)
+                              parallel=FALSE, BPPARAM=bpparam(), seed=NULL, ...)
           {
             ## Parse ellipsis function separately for DESeq and coseq
             dots <- dots_DESeq <- dots_coseq <- list(...)
@@ -118,7 +118,7 @@ setMethod("coseq", signature=signature(object="DESeqDataSet"),
               setdiff(names(dots_coseq), c("conds", "geneIDs",
                                            "parallel", "BPPARAM", "alg.type", "init.runs",
                                            "init.type", "GaussianModel", "init.iter",
-                                           "cutoff", "verbose", "digits", "fixed.lambda",
+                                           "cutoff", "verbose", "digits", "seed", "fixed.lambda",
                                            "equal.proportions", "prev.labels",
                                            "prev.probaPost", "interpretation", "EM.verbose",
                                            "wrapper", "modelChoice"))

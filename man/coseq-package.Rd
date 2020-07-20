@@ -12,7 +12,7 @@ mixture models or a K-means algorithm, and model selection criteria
 }
 \details{
 \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-\tab 1.11.1\cr Date: \tab 2020-01-04\cr License: \tab GPL (>=3)\cr LazyLoad:
+\tab 1.13.2\cr Date: \tab 2020-07-20\cr License: \tab GPL (>=3)\cr LazyLoad:
 \tab yes\cr }
 }
 \examples{
@@ -24,7 +24,7 @@ conds <- rep(c("A","B","C","D"), each=2)
 
 ## Run the Normal mixture model for K = 2,3,4
 run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin",
-                    model="Normal")
+                    model="Normal", seed=12345)
 run_arcsin
 
 ## Plot and summarize results

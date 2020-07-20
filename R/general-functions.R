@@ -44,6 +44,8 @@
 #' @param BPPARAM Optional parameter object passed internally to \code{bplapply} when
 #' \code{parallel=TRUE}. If not specified, the parameters last registered with \code{register}
 #' will be used.
+#' @param seed If desired, an integer defining the seed of the random number generator. If
+#' \code{NULL}, a random seed is used.
 #' @param ... Additional optional parameters.
 #'
 #' @return
@@ -84,7 +86,7 @@
 coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transformation="logclr",
                       subset=NULL, meanFilterCutoff=50,
                       modelChoice=ifelse(model=="kmeans", "DDSE", "ICL"),
-                      parallel=FALSE, BPPARAM=bpparam(), ...) {
+                      parallel=FALSE, BPPARAM=bpparam(), seed=NULL,  ...) {
 
   if(!is.null(subset)) y <- y[subset,]
   if(!all.equal(round(abs(K)), K)) stop("K should be a vector of cluster numbers.")
@@ -124,13 +126,18 @@ Please double-check that your data are in the correct format.")
   cat("****************************************\n")
   cat("coseq analysis:", model, "approach &", transformation, "transformation\n")
   cat("K =", min(K), "to", max(K), "\n")
-  cat("Use set.seed() prior to running coseq for reproducible results.\n")
+  cat("Use seed argument in coseq for reproducible results.\n")
   cat("****************************************\n")
 
   ########################
   ## POISSON MIXTURE MODEL
   ########################
   if(length(model) & model == "Poisson") {
+    
+    if(!is.null(seed)) {
+      set.seed(seed)
+    }
+    
     if(transformation != "none") stop("Poisson mixture model may only be applied on raw counts.")
     if(is.null(conds)) {
       message("Poisson mixture model fit assuming each sample is an independent condition.")
@@ -348,7 +355,8 @@ Please double-check that your data are in the correct format.")
                        init.type=arg.user$init.type, init.iter=arg.user$init.iter,
                        iter=arg.user$iter, cutoff=arg.user$cutoff,
                        verbose=arg.user$verbose, digits=arg.user$digits,
-                       GaussianModel=arg.user$GaussianModel)
+                       GaussianModel=arg.user$GaussianModel,
+                       seed=seed)
   }
 
 
@@ -357,6 +365,10 @@ Please double-check that your data are in the correct format.")
   ########################
 
   if(length(model) & model == "kmeans") {
+    
+    if(!is.null(seed)) {
+      set.seed(seed)
+    }
 
     if(modelChoice != "DDSE") message("Note: only DDSE is currently supported for model choice for K-means.")
     if(!transformation %in% c("clr", "alr", "logclr", "ilr")) {

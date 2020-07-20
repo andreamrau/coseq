@@ -4,10 +4,12 @@
 \name{fietz}
 \alias{fietz}
 \title{RNA-seq data from the mouse neocortex in Fietz et al. (2012)}
-\format{An ExpressionSet named \code{fietz.eset} containing the phenotype data and
+\format{
+An ExpressionSet named \code{fietz.eset} containing the phenotype data and
 expression data for the Fietz et al. (2012) experiment. Phenotype data may be
 accessed using the \code{pData} function, and expression data may be accessed
-using the \code{exprs} function.}
+using the \code{exprs} function.
+}
 \source{
 Digital Expression Explorer (http://dee.bakeridi.edu.au/).
 }

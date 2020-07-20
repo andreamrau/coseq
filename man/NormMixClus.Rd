@@ -4,8 +4,15 @@
 \alias{NormMixClus}
 \title{Normal mixture model estimation and selection for a series of cluster numbers}
 \usage{
-NormMixClus(y_profiles, K, subset = NULL, parallel = TRUE,
-  BPPARAM = bpparam(), ...)
+NormMixClus(
+  y_profiles,
+  K,
+  subset = NULL,
+  parallel = TRUE,
+  BPPARAM = bpparam(),
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{y_profiles}{(\emph{n} x \emph{q}) matrix of observed profiles for \emph{n}
@@ -26,6 +33,9 @@ internal garbage collection will copy these files while running on worker nodes.
 \item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} when
 \code{parallel=TRUE}. If not specified, the parameters last registered with \code{register}
 will be used.}
+
+\item{seed}{If desired, an integer defining the seed of the random number generator. If
+\code{NULL}, a random seed is used.}
 
 \item{...}{Additional optional parameters to be passed to \code{\link{NormMixClusK}}.}
 }

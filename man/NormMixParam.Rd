@@ -4,8 +4,14 @@
 \alias{NormMixParam}
 \title{Calculate the mean and covariance for a Normal mixture model}
 \usage{
-NormMixParam(coseqResults, y_profiles = NULL, K = NULL, digits = 3,
-  plot = FALSE, ...)
+NormMixParam(
+  coseqResults,
+  y_profiles = NULL,
+  K = NULL,
+  digits = 3,
+  plot = FALSE,
+  ...
+)
 }
 \arguments{
 \item{coseqResults}{Object of class \code{coseqResults} or \code{RangedSummarizedExperiment}

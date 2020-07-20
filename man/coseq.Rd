@@ -11,20 +11,49 @@
 \usage{
 coseq(object, ...)
 
-\S4method{coseq}{matrix}(object, K, subset = NULL, model = "kmeans",
-  transformation = "logclr", normFactors = "TMM",
-  meanFilterCutoff = NULL, modelChoice = ifelse(model == "kmeans",
-  "DDSE", "ICL"), parallel = FALSE, BPPARAM = bpparam(), ...)
+\S4method{coseq}{matrix}(
+  object,
+  K,
+  subset = NULL,
+  model = "kmeans",
+  transformation = "logclr",
+  normFactors = "TMM",
+  meanFilterCutoff = NULL,
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"),
+  parallel = FALSE,
+  BPPARAM = bpparam(),
+  seed = NULL,
+  ...
+)
 
-\S4method{coseq}{data.frame}(object, K, subset = NULL,
-  model = "kmeans", transformation = "logclr", normFactors = "TMM",
-  meanFilterCutoff = NULL, modelChoice = ifelse(model == "kmeans",
-  "DDSE", "ICL"), parallel = FALSE, BPPARAM = bpparam(), ...)
+\S4method{coseq}{data.frame}(
+  object,
+  K,
+  subset = NULL,
+  model = "kmeans",
+  transformation = "logclr",
+  normFactors = "TMM",
+  meanFilterCutoff = NULL,
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"),
+  parallel = FALSE,
+  BPPARAM = bpparam(),
+  seed = NULL,
+  ...
+)
 
-\S4method{coseq}{DESeqDataSet}(object, K, model = "kmeans",
-  transformation = "logclr", normFactors = "TMM",
-  meanFilterCutoff = NULL, modelChoice = ifelse(model == "kmeans",
-  "DDSE", "ICL"), parallel = FALSE, BPPARAM = bpparam(), ...)
+\S4method{coseq}{DESeqDataSet}(
+  object,
+  K,
+  model = "kmeans",
+  transformation = "logclr",
+  normFactors = "TMM",
+  meanFilterCutoff = NULL,
+  modelChoice = ifelse(model == "kmeans", "DDSE", "ICL"),
+  parallel = FALSE,
+  BPPARAM = bpparam(),
+  seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{Data to be clustered. May be provided as a y (\emph{n} x \emph{q})
@@ -78,6 +107,9 @@ internal garbage collection will copy these files while running on worker nodes.
 \item{BPPARAM}{Optional parameter object passed internally to \code{bplapply} when
 \code{parallel=TRUE}. If not specified, the parameters last registered with \code{register}
 will be used.}
+
+\item{seed}{If desired, an integer defining the seed of the random number generator. If
+\code{NULL}, a random seed is used.}
 }
 \value{
 An S4 object of class \code{coseqResults}, where conditional
@@ -101,7 +133,7 @@ conds <- rep(c("A","B","C","D"), each=2)
 
 ## Run the Normal mixture model for K = 2,3,4
 run_arcsin <- coseq(object=countmat, K=2:4, iter=5, transformation="arcsin",
-                    model="Normal")
+                    model="Normal", seed=12345)
 run_arcsin
 
 ## Plot and summarize results
