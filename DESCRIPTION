@@ -1,8 +1,8 @@
 Package: coseq
 Type: Package
 Title: Co-Expression Analysis of Sequencing Data
-Version: 1.13.1
-Date: 2020-06-25
+Version: 1.13.2
+Date: 2020-07-20
 Author: Andrea Rau, Cathy Maugis-Rabusseau, Antoine Godichon-Baggioni
 Maintainer: Andrea Rau <andrea.rau@inrae.fr>
 Depends: R (>= 3.4.0), SummarizedExperiment, S4Vectors
@@ -19,5 +19,5 @@ biocViews: GeneExpression, RNASeq, Sequencing, Software, ImmunoOncology
 License: GPL (>=3)
 LazyLoad: yes
 Encoding: UTF-8
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 VignetteBuilder: knitr
