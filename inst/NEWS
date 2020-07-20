@@ -2,9 +2,13 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
-    coseq VERSION 1.13.1
+    coseq VERSION 1.13.1 - 1.13.2
     
 -- Adjust plotting function to remove ggplot2 warning. (Thanks to Praveen Kumar for the pull request.)
+-- Add option to remove red lines from boxplots with add_lines argument. (Thanks to
+Marie-Laure Martin-Magniette for the suggestion.)
+-- Fix behavior when seed is to be set for reproducible results for the Normal
+mixture model via the new seed argument.
 
 		coseq VERSION 1.7.1 - 1.7.3
 
