@@ -1,16 +1,23 @@
 ---
 title: "*coseq* package: Quick-start guide"
 author: "Andrea Rau, Antoine Godichon-Baggioni, and Cathy Maugis-Rabusseau"
+package: coseq
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
-    toc: true
-
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
 vignette: >
   %\VignetteIndexEntry{coseq}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+
+```{r, fig.align = "center", out.width = "50%", echo=FALSE}
+knitr::include_graphics("coseq_hex.png")
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
 
 *coseq* is a package to perform clustering analysis of sequencing data 
 (e.g., co-expression analysis of RNA-seq data), using transformed profiles rather than the raw counts directly. The package implements two distinct strategies in conjunction with transformations: 1) MacQueen's *K*-means algorithm and 2) Gaussian mixture models. For both strategies model selection is provided using the slope heuristics approach and integrated completed likelihood (ICL) criterion, respectively. Note that for backwards compatibility, *coseq* also provides a wrapper for the Poisson mixture model originally proposed in Rau et al. (2015) and implemented in the *HTSCluster* package.
@@ -59,7 +66,11 @@ Note that unless otherwise specified by the user, *coseq* uses the following def
 * Model selection (choice of the number of clusters) via the slope heuristics approach
 * No parallelization.
 
+Note that rerunning *coseq* may lead to different results (both for the number of chosen clusters as well as the cluster assignments) due to differences in initialization. For reproducible results, make sure to use the `seed` argument to fix the seed of the random number generator:
 
+```{r, eval=FALSE}
+run <- coseq(counts, K=2:25, seed=12345)
+```
 
 
 ## Co-expression analysis with *coseq*
@@ -201,12 +212,13 @@ Next, a variety of plots may be explored using the `plot` function:
 
 * `probapost_histogram` (histogram of maximum conditional probabilities over all clusters).
 
-By default, all of these plots are produced simultaneously unless specific graphics are requested via the `graphs` argument. In addition, a variety of options are available to specify the number of graphs per row/column in a grid layout, whether profiles should be averaged or summed over conditions (`collapse_reps`), whether condition labels should be used, whether clusters should be ordered according to their similarity, etc. Note that the histogram of maximum conditional probabilities of cluster membership for all genes (`probapost_histogram`), and boxplots and barplots of maximum conditional probabilities of cluster membership for the genes assigned to each cluster (`probapost_boxplots`, `probapost_barplots`) help to evaluate the degree of certitude accorded by the model in assigning genes to clusters, as well as whether some clusters are attribued a greater degree of uncertainty than others.
+By default, all of these plots are produced simultaneously unless specific graphics are requested via the `graphs` argument. In addition, a variety of options are available to specify the number of graphs per row/column in a grid layout, whether profiles should be averaged or summed over conditions (`collapse_reps`), whether condition labels should be used, whether clusters should be ordered according to their similarity, etc. The mean lines that are superimposed on boxplots of profiles in each cluster can optionally be removed using `add_lines=FALSE`. Note that the histogram of maximum conditional probabilities of cluster membership for all genes (`probapost_histogram`), and boxplots and barplots of maximum conditional probabilities of cluster membership for the genes assigned to each cluster (`probapost_boxplots`, `probapost_barplots`) help to evaluate the degree of certitude accorded by the model in assigning genes to clusters, as well as whether some clusters are attribued a greater degree of uncertainty than others.
 
 ```{r, fig.width=6, fig.height=4}
 ## To obtain all plots
 ## plot(runArcsin)
 plot(runArcsin, graphs="boxplots")
+plot(runArcsin, graphs="boxplots", add_lines = FALSE)
 plot(runArcsin, graphs="boxplots", conds=conds)
 plot(runArcsin, graphs="boxplots", conds=conds, collapse_reps = "sum")
 plot(runArcsin, graphs="profiles")
@@ -318,7 +330,7 @@ conds <- c(rep("A", 4), rep("B", 3), rep("D", 3))
 
 ## Run coseq
 coexp <- coseq(object=countmat, K=2:15, iter=5, transformation="logclr",
-                    model="kmeans")
+                    model="kmeans", seed=12345)
 
 ## Original boxplot
 p <- plot(coexp, graphs = "boxplots", conds = conds, 
