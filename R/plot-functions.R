@@ -57,6 +57,8 @@
 #' @param probaPost Matrix or data.frame of dimension (\emph{n} x \emph{K}) containing the
 #' conditional probilities of cluster membership for \emph{n} genes in \emph{K} clusters
 #' arising from a mixture model
+#' @param add_lines If \code{TRUE}, add red lines representing means to boxplots; if \code{FALSE}, 
+#' these will be suppressed.
 #'
 #' @return Named list of plots of the \code{coseqResults} object.
 #'
@@ -81,7 +83,8 @@ setMethod(f="plot", signature(x="coseqResults"),
                               graphs=c("logLike", "ICL",
                                       "profiles", "boxplots", "probapost_boxplots",
                                        "probapost_barplots", "probapost_histogram"),
-                              order=FALSE, profiles_order=NULL, n_row=NULL, n_col=NULL, ...) {
+                              order=FALSE, profiles_order=NULL, n_row=NULL, n_col=NULL, 
+                              add_lines = TRUE, ...) {
             # x <- object
             graph_objects <- c()
             ## Parse ellipsis function
@@ -99,7 +102,8 @@ setMethod(f="plot", signature(x="coseqResults"),
               if(model(object) != "kmeans") {
                 globalPlots <- coseqGlobalPlots(object, K=K, threshold=threshold, conds=conds,
                                                 graphs=graphs,
-                                                order=order, profiles_order=profiles_order, n_row=n_row, n_col=n_col, ...)
+                                                order=order, profiles_order=profiles_order, n_row=n_row, 
+                                                n_col=n_col, ...)
                 graph_objects <- c(graph_objects, globalPlots)
               }
               if(model(object) == "kmeans")
@@ -141,7 +145,7 @@ using collapse_reps = 'average' instead.)")
               modelPlots <- coseqModelPlots(probaPost=xx, y_profiles=y_profiles, K=NULL, threshold=threshold, conds=conds,
                    collapse_reps=collapse_reps,
                    graphs=graphs, order = order, alpha=arg.user$alpha,
-                   profiles_order=profiles_order, n_row = n_row, n_col = n_col, ...)
+                   profiles_order=profiles_order, n_row = n_row, n_col = n_col, add_lines = add_lines, ...)
               graph_objects <- c(graph_objects, modelPlots)
             }
         return(graph_objects)
@@ -193,7 +197,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                                         "probapost_barplots",
                                         "probapost_histogram"),
                                order = FALSE, profiles_order=NULL,
-                               n_row=NULL, n_col=NULL, ...) {
+                               n_row=NULL, n_col=NULL, add_lines = TRUE, ...) {
 
   graph_objects <- c()
 
@@ -390,8 +394,10 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
         g3 <- g3 + geom_boxplot(aes_string(fill="conds")) +
           scale_fill_discrete(name="Conditions")
       }
-      g3 <- g3 + stat_summary(fun=mean, geom="line", aes(group=1), colour="red")  +
-        stat_summary(fun=mean, geom="point", colour="red")
+      if(add_lines == TRUE) {
+        g3 <- g3 + stat_summary(fun=mean, geom="line", aes(group=1), colour="red")  +
+          stat_summary(fun=mean, geom="point", colour="red") 
+      }
       if(!is.null(K) & length(K) > 1) g3 <- g3 +  ggtitle(paste("Cluster", K))
       if(collapse_reps == "none") g3 <- g3 +
         scale_y_continuous(name=ifelse(is.null(arg.user$ylab), "Expression profiles", arg.user$ylab)) +
