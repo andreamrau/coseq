@@ -40,7 +40,7 @@ using Gaussian mixture models in conjunction with either the arcsine or logit tr
 Below, we provide a quick-start guide using a subset of RNA-seq data to illustrate
 the functionalities of the *coseq* package. In this document, we focus on the methods described in Rau and Maugis-Rabusseau (2018) and Godichon-Baggioni et al. (2018). For more information about the method described in Rau et al. (2015), see the [HTSCluster](https://CRAN.R-project.org/package=HTSCluster) vignette.
 
-## Quick start (tl;dr)
+# Quick start (tl;dr)
 A standard *coseq* analysis takes the following form, where `counts` represents a matrix or data.frame of gene-level counts arising from an RNA-seq experiment (of dimension *n* x *d* for *n* genes and *d* samples). Results, exported in the form of a `coseqResults` S4 object, can easily be examined using standard `summary` and `plot` functions (see below and the User's Guide for examples of plots that may be obtained):
 ```{r, eval=FALSE}
 run <- coseq(counts, K=2:25)
@@ -73,7 +73,7 @@ run <- coseq(counts, K=2:25, seed=12345)
 ```
 
 
-## Co-expression analysis with *coseq*
+# Co-expression analysis with *coseq*
 
 For the remainder of this vignette, we make use of the mouse neocortex RNA-seq data from [Fietz et al. (2012)](https://www.ncbi.nlm.nih.gov/pubmed/22753484) (available at https://perso.math.univ-toulouse.fr/maugis/mixstatseq/packages and as an ExpressionSet object called `fietz` in *coseq*). The aim in this study was to investigate the expansion of the neocortex in five embryonic (day 14.5) mice by analyzing the transcriptome of three regions: the ventricular zone (VZ), subventricular zone (SVZ) and cortical place (CP). 
 
@@ -99,7 +99,7 @@ p_{ij} = \frac{y_{ij}/s_{j} +1}{\sum_{j'} y_{ij'}/s_{j'} +1},
 $$ 
 where $s_j$ are normalization scaling factors (e.g., after applying  [TMM](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2010-11-3-r25) normalization to library sizes) and $y_{ij}$ represents the raw count for gene $i$ in sample $j$. 
 
-### Transformations for normalized profiles with the Gaussian mixture model 
+## Transformations for normalized profiles with the Gaussian mixture model 
 
 Since the coordinates of $\mathbf{p}_i$ are linearly dependent (causing estimation problems for a Gaussian mixture distribution), weconsider either the arcsine or logit transformation of the normalized profiles $p_{ij}$:
 $$g_{\text{arcsin}}(p_{ij}) = \text{arcsin}\left( \sqrt{ p_{ij} } \right) \in [0, \pi/2], \text{ and}$$
@@ -111,7 +111,7 @@ $$f(.|\theta_K) = \sum_{k=1}^K \pi_k \phi(.|\mu_k,\Sigma_k)$$
 
 where $\theta_K=(\pi_1,\ldots,\pi_{K-1},\mu_1,\ldots,\mu_K,\Sigma_1,\ldots,\Sigma_K)$, $\pi=(\pi_1,\ldots,\pi_K)$ are the mixing proportions and $\phi(.|\mu_k,\Sigma_k)$ is the $q$-dimensional Gaussian density function with mean $\mu_k$ and covariance matrix $\Sigma_k$. To estimate mixture parameters $\theta_K$ by computing the maximum likelihood estimate (MLE), an Expectation-Maximization (EM) algorithm is used via the  [Rmixmod](https://CRAN.R-project.org/package=Rmixmod) package. Finally, let $\hat t_{ik}$ be the conditional probability that observation $i$ arises from the $k$th component of the mixture $f(.|\hat \theta_{\hat K})$. Each observation $i$ is assigned to the component maximizing the conditional probability $\hat t_{ik}$ i.e., using the so-called maximum a posteriori (MAP) rule.
 
-### Transformations for normalized profiles with *K*-means
+## Transformations for normalized profiles with *K*-means
 
 For the *K*-means algorithm, we consider three separate transformations of the profiles $p_{i}$ that are well adapted to compositional data (see Godichon-Baggioni et al., 2017 for more details):
 
@@ -130,11 +130,11 @@ with $i \in C_{k}$ if $\left\| h\left( y_{i}\right) - \mu_{k,h} \right\|_{2} = \
 and $h$ is the chosen transformation. In order to minimize the SSE, we use the well-known MacQueen's *K*-means algorithm.
 
 
-### Model selection
+## Model selection
 
 Because the number of clusters $K$ is not known a priori, we fit a collection of models (here $K$ = 2, ..., 25) and use either the Integrated Completed Likelihood (ICL) criterion (in the case of the Gaussian mixture model) or the slope heuristics (in the case of the *K*-means algorithm) to select the best model in terms of fit, complexity, and cluster separation. 
 
-### Other options
+## Other options
 
 If desired, we can set a filtering cutoff on the mean normalized counts via the `meanFilterCutoff` argument to remove very weakly expressed genes from the co-expression analysis; in the interest of faster computation for this vignette, in this example we filter all genes with mean normalized expression less than 200 (for the Gaussian mixture model) or less than 50 (for the *K*-means algorithm).
 
@@ -144,7 +144,7 @@ Note that if desired, parallel execution using [BiocParallel](http://bioconducto
 run <- coseq(..., parallel=TRUE)
 ```
 
-## Running *coseq*
+# Running *coseq*
 
 
 The collection of co-expression models for the logCLR-transformed profiles using the *K*-means algorithm may be obtained as follows (note that we artificially set the number of maximum
@@ -355,7 +355,7 @@ p$boxplot +
 
 
 
-## *coseq* FAQs
+# *coseq* FAQs
 
 1. Should I use the Gaussian mixture model (`model="Normal"`) or the K-means (`model="kmeans"`) approach for my co-expression analysis? And what about the Poisson mixture model?
 
