@@ -6,7 +6,7 @@
 #' (to choose an appropriate number of clusters) are provided.
 #'
 #' \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-#' \tab 1.13.2\cr Date: \tab 2020-07-20\cr License: \tab GPL (>=3)\cr LazyLoad:
+#' \tab 1.15.1\cr Date: \tab 2020-11-206cr License: \tab GPL-3\cr LazyLoad:
 #' \tab yes\cr }
 #'
 #' @name coseq-package
@@ -18,7 +18,7 @@
 #' @references
 #' Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2018) Clustering
 #' transformed compositional data using K-means, with applications in gene
-#' expression and bicycle sharing system data. Journal of Applied Statistics, 
+#' expression and bicycle sharing system data. Journal of Applied Statistics,
 #' doi:10.1080/02664763.2018.1454894.
 #'
 #' Rau, A. and Maugis-Rabusseau, C. (2018) Transformation and model choice for
