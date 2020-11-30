@@ -12,7 +12,7 @@ mixture models or a K-means algorithm, and model selection criteria
 }
 \details{
 \tabular{ll}{ Package: \tab coseq\cr Type: \tab Package\cr Version:
-\tab 1.13.2\cr Date: \tab 2020-07-20\cr License: \tab GPL (>=3)\cr LazyLoad:
+\tab 1.15.2\cr Date: \tab 2020-11-30 \cr License: \tab GPL-3\cr LazyLoad:
 \tab yes\cr }
 }
 \examples{
@@ -57,7 +57,7 @@ run_kmeans
 \references{
 Godichon-Baggioni, A., Maugis-Rabusseau, C. and Rau, A. (2018) Clustering
 transformed compositional data using K-means, with applications in gene
-expression and bicycle sharing system data. Journal of Applied Statistics, 
+expression and bicycle sharing system data. Journal of Applied Statistics,
 doi:10.1080/02664763.2018.1454894.
 
 Rau, A. and Maugis-Rabusseau, C. (2018) Transformation and model choice for
