@@ -172,7 +172,7 @@ setMethod("coseq", signature=signature(object="DESeqDataSet"),
 #' nbCluster,NULL-method
 #' ICL
 #' ICL,RangedSummarizedExperiment-method
-#' ICL,mixmodCluster-method
+#' ICL,MixmodCluster-method
 #' ICL,coseqResults-method
 #' ICL,NULL-method
 #' profiles
@@ -277,11 +277,11 @@ setMethod("nbCluster", "NULL", function(object) NA)
 
 #' @rdname coseqHelpers
 #' @export
-setMethod("ICL", "RangedSummarizedExperiment", function(object) metadata(object)$ICL)
+setMethod("ICL", "MixmodCluster", function(object) object["bestResult"]@criterionValue)
 
 #' @rdname coseqHelpers
 #' @export
-setMethod("ICL", "MixmodCluster", function(object) object["bestResult"]@criterionValue)
+setMethod("ICL", "RangedSummarizedExperiment", function(object) metadata(object)$ICL)
 
 #' @rdname coseqHelpers
 #' @export

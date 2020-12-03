@@ -25,7 +25,7 @@
 \alias{nbCluster,coseqResults-method}
 \alias{nbCluster,NULL-method}
 \alias{ICL,RangedSummarizedExperiment-method}
-\alias{ICL,mixmodCluster-method}
+\alias{ICL,MixmodCluster-method}
 \alias{ICL,coseqResults-method}
 \alias{ICL,NULL-method}
 \alias{profiles,coseqResults-method}
@@ -39,7 +39,6 @@
 \alias{Djumpextract,Capushe-method}
 \alias{clusters,matrix-method}
 \alias{clusters,data.frame-method}
-\alias{ICL,MixmodCluster-method}
 \alias{coseqFullResults,coseqResults-method}
 \title{Accessors for the assigned cluster labels of a coseqResults object.}
 \usage{
@@ -91,9 +90,9 @@ Djumpextract(object, ...)
 
 \S4method{nbCluster}{`NULL`}(object)
 
-\S4method{ICL}{RangedSummarizedExperiment}(object)
-
 \S4method{ICL}{MixmodCluster}(object)
+
+\S4method{ICL}{RangedSummarizedExperiment}(object)
 
 \S4method{ICL}{coseqResults}(object)
 
