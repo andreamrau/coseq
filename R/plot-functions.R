@@ -24,8 +24,8 @@
 #' plots. This argument is redundant to \code{collapse_reps = "sum"}, and \code{collapse_reps}
 #' should be used instead.
 #' @param collapse_reps If \code{"none"}, display all replicates. If \code{"sum"}, collapse replicates
-#' within each condition by summing their profiles If \code{"average"}, collapse replicates within 
-#' each condition by averaging their profiles. For highly unbalanced experimental designs, using 
+#' within each condition by summing their profiles If \code{"average"}, collapse replicates within
+#' each condition by averaging their profiles. For highly unbalanced experimental designs, using
 #' \code{"average"} will likely provide more easily interpretable plots.
 #' @param graphs Graphs to be produced, one (or more) of the following:
 #' \code{"logLike"} (log-likelihood plotted versus number of clusters),
@@ -46,18 +46,14 @@
 #' Otherwise, the user may provide a vector (of length equal to the number of clusters in the
 #' given model) providing the desired order of plots.
 #' @param n_row Number of rows for plotting layout of line plots and boxplots of profiles.
-#' Note that if \code{n_row} x \code{n_col} is less than the total number of clusters plotted,
-#' plots will be divided over multiple pages.
 #' @param n_col Number of columns for plotting layout of line plots and boxplots of profiles.
-#' Note that if \code{n_row} x \code{n_col} is less than the total number of clusters plotted,
-#' plots will be divided over multiple pages.
 #' @param ...  Additional optional plotting arguments (e.g., xlab, ylab, use_sample_names, facet_labels)
 #' @param object An object of class \code{"RangedSummarizedExperiment"} arising from a call to
 #' \code{NormMixClus}
 #' @param probaPost Matrix or data.frame of dimension (\emph{n} x \emph{K}) containing the
 #' conditional probilities of cluster membership for \emph{n} genes in \emph{K} clusters
 #' arising from a mixture model
-#' @param add_lines If \code{TRUE}, add red lines representing means to boxplots; if \code{FALSE}, 
+#' @param add_lines If \code{TRUE}, add red lines representing means to boxplots; if \code{FALSE},
 #' these will be suppressed.
 #'
 #' @return Named list of plots of the \code{coseqResults} object.
@@ -83,7 +79,7 @@ setMethod(f="plot", signature(x="coseqResults"),
                               graphs=c("logLike", "ICL",
                                       "profiles", "boxplots", "probapost_boxplots",
                                        "probapost_barplots", "probapost_histogram"),
-                              order=FALSE, profiles_order=NULL, n_row=NULL, n_col=NULL, 
+                              order=FALSE, profiles_order=NULL, n_row=NULL, n_col=NULL,
                               add_lines = TRUE, ...) {
             # x <- object
             graph_objects <- c()
@@ -102,7 +98,7 @@ setMethod(f="plot", signature(x="coseqResults"),
               if(model(object) != "kmeans") {
                 globalPlots <- coseqGlobalPlots(object, K=K, threshold=threshold, conds=conds,
                                                 graphs=graphs,
-                                                order=order, profiles_order=profiles_order, n_row=n_row, 
+                                                order=order, profiles_order=profiles_order, n_row=n_row,
                                                 n_col=n_col, ...)
                 graph_objects <- c(graph_objects, globalPlots)
               }
@@ -252,7 +248,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                           labels=rep(labels, times=ncol(y_profiles_c)),
                           proba=rep(proba, times=ncol(y_profiles_c)))
   }
-  
+
   if(collapse_reps == "average") {
     if(!length(conds)) stop("Conds argument needed when collapse_reps == 'average")
     y_profiles_c <- t(rowsum(t(as.matrix(as.data.frame(y_profiles))), conds)/as.numeric(table(conds)))
@@ -385,7 +381,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
 
     ## Print all on the same page
  #   if(is.null(n_row)) {
-      g3 <- ggplot(pl_data_tmp, 
+      g3 <- ggplot(pl_data_tmp,
                    aes_string(x=ifelse(collapse_reps == "none", "col_num", "conds"), y="y_prof"))
       if(!length(conds)) {
         g3 <- g3 +  geom_boxplot()
@@ -396,7 +392,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
       }
       if(add_lines == TRUE) {
         g3 <- g3 + stat_summary(fun=mean, geom="line", aes(group=1), colour="red")  +
-          stat_summary(fun=mean, geom="point", colour="red") 
+          stat_summary(fun=mean, geom="point", colour="red")
       }
       if(!is.null(K) & length(K) > 1) g3 <- g3 +  ggtitle(paste("Cluster", K))
       if(collapse_reps == "none") g3 <- g3 +
@@ -416,7 +412,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
       }
  #     print(g3)
       graph_objects$boxplots <- g3
-    
+
  #    ## Print on different pages
  #    if(!is.null(n_row)) {
  #      g4_list <- lapply(levels(pl_data_tmp$labels), function(.x) {
@@ -432,7 +428,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
  #        }
  #        g4 <- g4 + stat_summary(fun=mean, geom="line", aes(group=1), colour="red")  +
  #          stat_summary(fun=mean, geom="point", colour="red")
- # 
+ #
  #        if(is.null(arg.user$facet_labels)) g4 <- g4 + facet_wrap(~labels)
  #        if(!is.null(arg.user$facet_labels))
  #          g4 <- g4 + facet_wrap(~labels, labeller=labeller(labels = arg.user$facet_labels))
@@ -466,7 +462,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                           labels=rep(labels, times=ncol(y_profiles)),
                           proba=rep(proba, times=ncol(y_profiles)))
     pl_data$labels <- factor(pl_data$labels)
-    
+
     ## Single value of K or subset of values
     if(!is.null(K)) pl_data <- pl_data[which(pl_data$labels %in% K),]
     if(is.null(K) & order) {
@@ -492,7 +488,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                           labels=rep(labels, times=ncol(y_profiles)),
                           proba=rep(proba, times=ncol(y_profiles)))
     pl_data$labels <- factor(pl_data$labels)
-    
+
     pl_data2 <- pl_data[which(pl_data$col_num==1),]
     pl_data2$goodproba <- factor(ifelse(pl_data2$proba > threshold,
                                         paste(">", threshold), paste("<", threshold)),
@@ -529,7 +525,7 @@ coseqModelPlots <- function(probaPost, y_profiles, K=NULL, threshold=0.8, conds=
                           labels=rep(labels, times=ncol(y_profiles)),
                           proba=rep(proba, times=ncol(y_profiles)))
     pl_data$labels <- factor(pl_data$labels)
-    
+
     pl_data_tmp <- pl_data[which(pl_data$col_num == 1),]
     gg <- ggplot(pl_data_tmp, aes_string(x="proba")) +
       geom_histogram(binwidth = 0.01) +

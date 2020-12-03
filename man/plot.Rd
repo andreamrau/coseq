@@ -72,8 +72,8 @@ plots. This argument is redundant to \code{collapse_reps = "sum"}, and \code{col
 should be used instead.}
 
 \item{collapse_reps}{If \code{"none"}, display all replicates. If \code{"sum"}, collapse replicates
-within each condition by summing their profiles If \code{"average"}, collapse replicates within 
-each condition by averaging their profiles. For highly unbalanced experimental designs, using 
+within each condition by summing their profiles If \code{"average"}, collapse replicates within
+each condition by averaging their profiles. For highly unbalanced experimental designs, using
 \code{"average"} will likely provide more easily interpretable plots.}
 
 \item{graphs}{Graphs to be produced, one (or more) of the following:
@@ -97,15 +97,11 @@ between cluster means) to plot clusters with similar mean profiles next to one a
 Otherwise, the user may provide a vector (of length equal to the number of clusters in the
 given model) providing the desired order of plots.}
 
-\item{n_row}{Number of rows for plotting layout of line plots and boxplots of profiles.
-Note that if \code{n_row} x \code{n_col} is less than the total number of clusters plotted,
-plots will be divided over multiple pages.}
+\item{n_row}{Number of rows for plotting layout of line plots and boxplots of profiles.}
 
-\item{n_col}{Number of columns for plotting layout of line plots and boxplots of profiles.
-Note that if \code{n_row} x \code{n_col} is less than the total number of clusters plotted,
-plots will be divided over multiple pages.}
+\item{n_col}{Number of columns for plotting layout of line plots and boxplots of profiles.}
 
-\item{add_lines}{If \code{TRUE}, add red lines representing means to boxplots; if \code{FALSE}, 
+\item{add_lines}{If \code{TRUE}, add red lines representing means to boxplots; if \code{FALSE},
 these will be suppressed.}
 
 \item{object}{An object of class \code{"RangedSummarizedExperiment"} arising from a call to

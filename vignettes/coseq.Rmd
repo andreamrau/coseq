@@ -392,3 +392,140 @@ Condition labels are not used in the actual clustering implemented by *coseq*, a
 8. Why did I get an error message about the singular covariance matrices for the form of Gaussian mixture model I used?
 
 Occasionally, the default form of Gaussian mixture model (`Gaussian_pk_Lk_CK`, which is the most general form available with per-cluster proportions, volumes, shapes, and orientations for covariance matrices) used in `coseq` is not estimable (via the `Rmixmod` package used by `coseq`) due to non-invertible per-cluster covariance matrices. The error message thus suggests using a slightly more restrictive form of Gaussian mixture model, such as the `Gaussian_pk_Lk_Bk` (which imposes spherical covariance matrices) or `Gaussian_pk_Lk_I` (which imposes diagonal covariance matrices). See `?Rmixmod::mixmodGaussianModel` for more details about the nomenclature and possible forms of Gaussian mixture models.
+
+9. How can I plot cluster profiles in individual figures (i.e., as many plots as clusters)?
+
+One way to go about doing this is to use the the `facet_wrap_paginate()` function 
+in the *ggforce* package. For example, if `coexp` is a `coseqResults` object, you
+could plot each profile to an individual page using 
+
+```{r, eval=FALSE}
+## Plot and summarize results
+p <- plot(coexp, graph = "boxplots")$boxplots
+library(ggforce)
+pdf("coseq_boxplots_by_page.pdf")
+for(k in seq_len(ncol(assay(coexp)))) 
+    print(p + facet_wrap_paginate(~labels, page = k, nrow = 1, ncol = 1))
+dev.off()
+```
+
+10. The order of conditions in the profile and boxplot graphs is not the same
+when individual samples are plotted (`collapse_reps = "none"`) and when replicates
+are collapsed within conditions (`collapse_reps = "average"` or `collapse_reps = "sum"`).
+How can I fix this?
+
+This inconsistency in visualization occurs when individual samples in the count
+matrix are not sorted according to the alphabetical order of the conditions factor.
+There are two potential solutions: (1) create a new plot by extracting the
+data from the `ggplot` object created by collapsing replciates, and re-order
+the condition factor (and adjust condition colors) as desired; or (2) simply
+order samples by condition in the count matrix prior to running coseq. Code illustrating
+each of these solutions may be found below.
+
+```{r, message=FALSE}
+## Reproducible example
+set.seed(12345)
+countmat <- matrix(runif(300*8, min=0, max=500), nrow=300, ncol=8)
+countmat <- countmat[which(rowSums(countmat) > 0),]
+conds <- rep(c("A","C","B","D"), each=2)
+colnames(countmat) <- factor(1:8)
+run <- coseq(object=countmat, K=2:4, iter=5, model = "Normal",
+             transformation = "arcsin")
+ 
+## Problem: Conditions B and C are not in the same order in these graphics
+p1 <- plot(run, graph = "boxplots", conds = conds)$boxplots
+p2 <- plot(run, graph = "boxplots", conds = conds, 
+           collapse_reps = "average")$boxplots
+ 
+## Solution 1 ------------------------------------------------------
+## Create a new plot
+dat_adjust <- p2$data
+dat_adjust$conds <- factor(dat_adjust$conds, levels = c("A", "C", "B", "D"))
+gg_color <- function(n) {
+    hues = seq(15, 375, length = n + 1)
+    hcl(h = hues, l = 65, c = 100)[1:n]
+}
+## p3 and p1 have conditions in the same order now
+p3 <- ggplot(dat_adjust, aes(x=conds, y=y_prof)) +
+    geom_boxplot(aes(fill = conds)) +
+    scale_fill_manual(name = "Conditions",
+                        values = gg_color(4)[c(1,3,2,4)]) +
+    stat_summary(fun=mean, geom="line", aes(group=1), colour="red")  +
+    stat_summary(fun=mean, geom="point", colour="red") +
+    scale_y_continuous(name="Average expression profiles") +
+    scale_x_discrete(name="Conditions") +
+    facet_wrap(~labels)
+ 
+## Solution 2 -------------------------------------------------------
+## Order samples by conditions in the count matrix before running coseq
+ 
+countmat_order <- countmat[,order(conds)]
+conds_order <- conds[order(conds)]
+run_order <- coseq(object=countmat_order, K=2:4, iter=5, model = "Normal",
+             transformation = "arcsin")
+## p4 and p5 have conditions in the same order too
+p4 <- plot(run_order, graph = "boxplots", conds = conds_order)$boxplots
+p5 <- plot(run_order, graph = "boxplots", conds = conds_order, 
+           collapse_reps = "average")$boxplots
+```
+
+11. How do I run *coseq* on multi-contrast *edgeR* or *DESeq2* DE results? 
+
+There are two possible approaches if your *coseq* analysis should be based on DE
+results arising from multiple contrasts (e.g. a multifactorial design, or
+a factor with more than two levels), depending on your study goals: 
+(1) for *coseq* analyses based on 
+the union of all genes identified as DE in at least one of several contrasts, 
+the most straightforward solution is to subset the count matrix using the 
+appropriate indices and the `subset` argument in *coseq*. If doing this, make
+sure to use `sort.by="none"` in the `topTags` function of *edgeR* (by default
+genes are sorted by p-value). For this solution, it is a good idea to provide
+*edgeR* normalization factors to *coseq* rather than recalculating them. 
+(2)	 Alternatively, a likelihood ratio test could be used to compare a full 
+model to a simplified model. This amounts to testing whether there is any 
+arbitrary differential expression in any combination of factors as compared to 
+a baseline. Code illustrating each of these solutions may be found below.
+
+```{r, message = FALSE}
+# Simulate toy data, n = 300 observations, factorial 2x2 design ---------------
+set.seed(12345)
+counts <- round(matrix(runif(300*8, min=0, max=500), nrow=300, ncol=8))
+factor_1 <- rep(c("A","B"), each=4)
+factor_2 <- rep(c("C", "D"), times=4)
+## Create some "differential expression" for each factor
+counts[1:50, 1:4] <- 10*counts[1:50, 1:4]
+counts[51:100, c(1,3,5,7)] <- 10*counts[51:100, c(1,3,5,7)]
+design <- model.matrix(~factor_1 + factor_2)
+
+## Option 1: edgeR analysis (here with the QLF test) with several contrasts-----
+y <- DGEList(counts=counts)
+y <- calcNormFactors(y)
+y <- estimateDisp(y, design)
+fit <- glmQLFit(y, design)
+## Test of significance for factor_1
+qlf_1 <- glmQLFTest(fit, coef=2)
+## Test of significance for factor_2
+qlf_2 <- glmQLFTest(fit, coef=3)
+## Make sure to use sort.by = "none" in topTags so that the indices are in the 
+##   same order! Also only keep unique indices
+de_indices <- c(unique(
+    which(topTags(qlf_1, sort.by = "none", n=Inf)$table$FDR < 0.05),
+    which(topTags(qlf_2, sort.by = "none", n=Inf)$table$FDR < 0.05)
+))
+## Now run coseq on the subset of DE genes, using prev normalization factors
+run <- coseq(counts, K=2:25, 
+             normFactors = y$samples$norm.factors,
+             subset = de_indices)
+
+## Option 2: edgeR analysis with overall LRT test-------------------------------
+y <- DGEList(counts=counts)
+y <- calcNormFactors(y)
+y <- estimateDisp(y, design)
+fit <- glmQLFit(y, design)
+qlf_any <- glmQLFTest(fit, coef=2:3)
+##  Now run coseq directly on the edgeR output
+run2 <- coseq(counts, K=2:25, subset=qlf_any, alpha=0.05)
+```
+
+
+

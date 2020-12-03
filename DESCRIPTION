@@ -1,7 +1,7 @@
 Package: coseq
 Type: Package
 Title: Co-Expression Analysis of Sequencing Data
-Version: 1.15.3
+Version: 1.15.4
 Date: 2020-12-03
 Authors@R: c(
   person(given="Andrea", 

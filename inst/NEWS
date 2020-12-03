@@ -1,9 +1,14 @@
-            
+
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
+    coseq VERSION 1.15.1 - 1.15.4
+
+-- Improved documentation in vignette, especially FAQs. (Thanks to Florian Rocher,
+David Roux, and Jessica Keffer for questions leading to these clarifications.)
+
     coseq VERSION 1.13.1 - 1.13.2
-    
+
 -- Adjust plotting function to remove ggplot2 warning. (Thanks to Praveen Kumar for the pull request.)
 -- Add option to remove red lines from boxplots with add_lines argument. (Thanks to
 Marie-Laure Martin-Magniette for the suggestion.)
@@ -28,18 +33,17 @@ Yuguo Xiao for the bug report.)
 In plotting used marrangeGrob, but this is now directly dealt with using ggplot2).
 -- Update vignette to illustrate how to customize coseq plots via ggplot2.
 
-
 		coseq VERSION 1.5.1
 
--- Clarify in documentation that normalization can be suppressed by setting 
+-- Clarify in documentation that normalization can be suppressed by setting
 normFactors = "none" in coseq. (Thanks to David Rangel for many helpful discussions.)
 -- K-means can now be run for less than 10 models without provoking an error;
-however, a message appears to inform user that model selection via capushe is not 
+however, a message appears to inform user that model selection via capushe is not
 possible (and the largest model is automatically selected).
 -- Updated citations.
 -- The coseq plot function now has the argument collapse_rows, which can take the
 values c("none", "sum", "average"). When collapse_rows = "sum", the plot behaves
-the same as when average_over_conds = TRUE , and profiles for replicates within a 
+the same as when average_over_conds = TRUE , and profiles for replicates within a
 condition are summed. When collapse_rows = "average", values for replicates are
 averaged; this behavior may be preferable for highly unbalanced designs. (Thanks to
 Gosia Komor for the idea.)
@@ -50,29 +54,29 @@ Gosia Komor for the idea.)
 
 -- Added some clarification in the documentation of coseq, especially to
 clarify that genes should be in rows and samples in columns.
--- Added some checks/warnings for “normal” vs “Normal”, applying transformations 
+-- Added some checks/warnings for “normal” vs “Normal”, applying transformations
 to profiles
--- Updated maintainer email 
+-- Updated maintainer email
 
 		coseq VERSION 1.1.3
 
--- Corrected error causing failing test for compareARI function when a matrix 
+-- Corrected error causing failing test for compareARI function when a matrix
 of non-discrete and/or non-positive values was provided.
-					
+
 		coseq VERSION 0.99.8 - 0.99.12
 
 -- Add Fietz et al. (2012) data to package
 -- Add in K-means algorithm functionality and conditional probability
 calculation.
--- Add flexibility in graph options (output ggplot object from function, 
+-- Add flexibility in graph options (output ggplot object from function,
 xlab, ylab, use_sample_names, optional facet labeling)
 -- Updated vignette and citation info.
- 
+
 
 		coseq VERSION 0.99.5
 
 -- Add unit tests, remove static vignette.
-					
+
 		coseq VERSION 0.99.1
 
 -- Fairly significant changes to address Bioconductor reviewer comments. In
@@ -83,4 +87,4 @@ from the SummarizedExperiment package.
 		coseq VERSION 0.1.x - 0.99.0
 
 -- Initial development version of coseq.
-		
+
