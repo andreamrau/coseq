@@ -1,8 +1,8 @@
 Package: coseq
 Type: Package
 Title: Co-Expression Analysis of Sequencing Data
-Version: 1.15.4
-Date: 2020-12-03
+Version: 1.15.5
+Date: 2020-12-04
 Authors@R: c(
   person(given="Andrea", 
          family="Rau", 
@@ -15,7 +15,7 @@ Authors@R: c(
   person(given="Antoine",
          family="Godichon-Baggioni",
          role="ctb"))
-Depends: R (>= 4.1), SummarizedExperiment, S4Vectors
+Depends: R (>= 4.0.0), SummarizedExperiment, S4Vectors
 Imports: edgeR, DESeq2, capushe, Rmixmod, e1071, BiocParallel, ggplot2, 
         scales, HTSFilter, corrplot, HTSCluster,
         grDevices, graphics, stats, methods, compositions, mvtnorm
