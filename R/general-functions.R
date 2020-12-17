@@ -96,16 +96,16 @@ coseqRun <- function(y, K, conds=NULL, normFactors="TMM", model="kmeans", transf
   if(nrow(y) < ncol(y))
     warning("The # of observations (rows) < the # of variables (columns) in your data.
 
-In most use cases of co-expression analysis with coseq, genes should be in the rows 
+In most use cases of co-expression analysis with coseq, genes should be in the rows
 and samples in the columns.
 
 Please double-check that your data are in the correct format.")
-  
+
   ## Check the model used
   if(model == "normal") model <- "Normal"
   if(model == "poisson") model <- "Poisson"
   if(model == "Kmeans") model <- "kmeans"
-  
+
   ## Parse ellipsis function
   providedArgs <- list(...)
   arg.user <- list(alg.type="EM", init.runs=50, init.type="small-em", init.iter=20,
@@ -133,11 +133,11 @@ Please double-check that your data are in the correct format.")
   ## POISSON MIXTURE MODEL
   ########################
   if(length(model) & model == "Poisson") {
-    
+
     if(!is.null(seed)) {
       set.seed(seed)
     }
-    
+
     if(transformation != "none") stop("Poisson mixture model may only be applied on raw counts.")
     if(is.null(conds)) {
       message("Poisson mixture model fit assuming each sample is an independent condition.")
@@ -216,8 +216,11 @@ Please double-check that your data are in the correct format.")
                                              P_alg.type, P_cutoff,
                                              P_iter, P_fixed.lambda,
                                              P_equal.proportions, P_verbose,
-                                             P_interpretation, P_EM.verbose) {
+                                             P_interpretation, P_EM.verbose, P_seed) {
           cat("Running K =", ii, "...\n")
+          if(!is.null(P_seed)) {
+            set.seed(P_seed)
+          }
           res <- PoisMixClus(g=as.numeric(ii),
                              y=P_y,
                              conds=P_conds,
@@ -245,7 +248,7 @@ Please double-check that your data are in the correct format.")
           P_iter=arg.user$iter, P_fixed.lambda=arg.user$fixed.lambda,
           P_equal.proportions=arg.user$equal.proportions, P_verbose=arg.user$verbose,
           P_interpretation=arg.user$interpretation, P_EM.verbose=arg.user$EM.verbose,
-          BPPARAM=BPPARAM)
+          BPPARAM=BPPARAM, P_seed=seed)
         Kmods <- paste0("K=", unlist(lapply(tmp, function(x) ncol(x$lambda))))
         all.results[-1] <- tmp[na.omit(match(names(all.results), Kmods))]
       }
@@ -344,7 +347,7 @@ Please double-check that your data are in the correct format.")
   if(length(model) & model == "Normal") {
 
     # (pk_Lk_Bk) or diagonal (pk_Lk_I)
-    
+
     if(modelChoice != "ICL") message("Note: only ICL is currently supported for model choice for Normal mixture models.")
     tcounts <- transformRNAseq(y=y, normFactors=normFactors, transformation=transformation,
                                 geneLength=arg.user$geneLength, meanFilterCutoff=meanFilterCutoff, verbose=FALSE)
@@ -365,7 +368,7 @@ Please double-check that your data are in the correct format.")
   ########################
 
   if(length(model) & model == "kmeans") {
-    
+
     if(!is.null(seed)) {
       set.seed(seed)
     }
@@ -404,8 +407,11 @@ Typically one of the following profile transformations is used with K-means: clr
       tot_withinss <- rep(NA, length(K)) ## Initialisation pour l'inertie intra
       names(tot_withinss) <- paste0("K=", K)
       tmp <- bplapply(K, function(ii, km_tcounts, km_iter.max, km_nstart, km_algorithm,
-                                  km_trace, km_verbose) {
+                                  km_trace, km_verbose, km_seed) {
         if(km_verbose) cat("Running K =", ii, "...\n")
+        if(!is.null(km_seed)) {
+          set.seed(km_seed)
+        }
         km <- suppressWarnings(kmeans(km_tcounts, centers=as.numeric(ii),
                                       iter.max=km_iter.max,
                                       nstart=km_nstart,
@@ -413,7 +419,7 @@ Typically one of the following profile transformations is used with K-means: clr
                                       trace=km_trace))
         return(km)}, km_tcounts=tcounts$tcounts, km_iter.max=arg.user$iter.max,
         km_nstart=arg.user$nstart, km_algorithm=arg.user$algorithm, km_trace=arg.user$trace,
-        km_verbose=arg.user$verbose, BPPARAM=BPPARAM)
+        km_verbose=arg.user$verbose, BPPARAM=BPPARAM, km_seed=seed)
       Kmods <- paste0("K=", unlist(lapply(tmp, function(x) length(x$size))))
       km_cluster <- lapply(tmp[na.omit(match(names(km_cluster), Kmods))], function(x) x$cluster)
       names(km_cluster) <- paste0("K=", K)
@@ -818,16 +824,16 @@ transformRNAseq <- function(y, normFactors="TMM", transformation="arcsin",
   ##################################
   ## Add warning message if y looks like profiles
   ##################################
-  if(min(y) < 0) 
+  if(min(y) < 0)
     warning("Your data contain negative values, but the transformRNAseq function expects counts.
 Are you sure you want to proceed?")
   if(min(y) >= 0 & max(y) <= 1)
     warning("Your data look like profiles, but the transformRNAseq function expects counts.
 Are you sure you want to proceed?
-            
+
 Note: if you have profiles and wish to apply the arcsin/logit/CLR/logCLR transformations,
 use one of the following instead.
-            
+
 arcsin <- asin(sqrt(profiles))
 logit <- log2(profiles / (1-profiles))
 CLR <- clr(profiles)
@@ -835,7 +841,7 @@ logCLR <- logclr(profiles)
 
 Then use transformation='none' and normFactors='none'.
 ")
-  
+
   ##################################
   ## Calculate normalization factors
   ##################################

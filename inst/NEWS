@@ -2,10 +2,13 @@
                 RELEASE HISTORY OF coseq PACKAGE
              ========================================
 
-    coseq VERSION 1.15.1 - 1.15.4
+    coseq VERSION 1.15.1 - 1.15.6
 
 -- Improved documentation in vignette, especially FAQs. (Thanks to Florian Rocher,
 David Roux, and Jessica Keffer for questions leading to these clarifications.)
+-- Fixed non-reproducibility observed when seed argument is provided for
+Poisson mixture model and K-means with parallel computing. (Thanks to Océane
+Cassan for the bug report.)
 
     coseq VERSION 1.13.1 - 1.13.2
 
