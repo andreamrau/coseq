@@ -18,8 +18,8 @@ test_that("model, transformation, normFactors, ICL", {
   expect_error(coseq(obj, K=2:4, transformation="other", verbose=FALSE))
 })
 
-coseq_res <- coseq(obj, K=2:4, norm="none", GaussianModel="Gaussian_pk_Lk_I",
-                   verbose=FALSE, model="Normal", transformation="none")
+# coseq_res <- coseq(obj, K=2:4, norm="none", GaussianModel="Gaussian_pk_Lk_I",
+#                    verbose=FALSE, model="Normal", transformation="none")
 
 # test_that("coseq output", {
 #   expect_true(length(clusters(coseq_res)) == nrow(obj))
